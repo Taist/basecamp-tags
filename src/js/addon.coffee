@@ -4,6 +4,7 @@ insertAfter = require './helpers/insertAfter'
 
 React = require 'react'
 tagsListComponent = require './react/basecamp/tagsList'
+tagsButtonComponent = require './react/basecamp/tagsButton'
 
 addonEntry =
   start: (_taistApi, entryPoint) ->
@@ -18,18 +19,26 @@ addonEntry =
 
       if location.href.match /todos\/\d+/i
         tagName = 'div'
-        prevElem = '.wrapper'
+        listPrevElem = '.wrapper'
       else
         tagName = 'span'
-        prevElem = '.content'
+        listPrevElem = '.content'
 
       container = document.createElement tagName
       # app.todoContainers[id] = container
-
-      insertAfter container, todoElem.querySelector prevElem
-
+      insertAfter container, todoElem.querySelector listPrevElem
       tagsList = app.helpers.getTags id
       React.render tagsListComponent( { tagsList } ), container
+
+      tagsButton = document.createElement 'span'
+      tagsButton.style.visibility = 'hidden'
+      tagsButton.setAttribute 'data-behavior', 'hover_content'
+      tagsButton.setAttribute 'data-hovercontent-strategy', 'visibility'
+      tagsButton.innerHTML = 'TAGS'
+      todoElem.querySelector('form.edit_todo span').appendChild tagsButton
+      React.render tagsButtonComponent(), tagsButton
+
+
 
 
 module.exports = addonEntry
