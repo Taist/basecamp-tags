@@ -1,9 +1,16 @@
 React = require 'react'
 
-{ div, button } = React.DOM
+{ div } = React.DOM
 
-FreshBooksAPIEnablePage = React.createFactory React.createClass
+Tag = require './tag'
+
+TagsList = React.createFactory React.createClass
   render: ->
-    div { style: display: 'inline-block' }, 'TAG LIST'
+    if @props.tagsList?.length > 0
+      div { style: display: 'inline-block', marginRight: -4 },
+        @props.tagsList.map (tagInfo) ->
+          Tag tagInfo
+    else
+      null
 
-module.exports = FreshBooksAPIEnablePage
+module.exports = TagsList

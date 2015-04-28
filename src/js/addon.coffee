@@ -18,8 +18,8 @@ addonEntry =
       container = document.createElement 'span'
       # app.todoContainers[id] = container
 
-      tagsList = {}
-      React.render tagsListComponent( tagsList ), container
+      tagsList = app.helpers.getTags id
+      React.render tagsListComponent( { tagsList } ), container
 
       insertAfter container, todoElem.querySelector '.content'
 

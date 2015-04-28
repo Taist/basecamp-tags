@@ -2,9 +2,23 @@ Q = require 'q'
 
 require('react/lib/DOMProperty').ID_ATTRIBUTE_NAME = 'data-vrbst-reactid'
 
-extend = require('react/lib/Object.assign');
+extend = require 'react/lib/Object.assign'
+generateGUID = require './helpers/generateGUID'
 
 appData = {}
+
+appData.tags = [
+  {
+    id: generateGUID()
+    name: 'SEO'
+    color: 'white'
+  },
+  {
+    id: generateGUID()
+    name: 'CPQ'
+    color: 'white'
+  }
+]
 
 app =
   api: null
@@ -33,5 +47,9 @@ app =
           updatedData
 
   actions: null
+
+  helpers:
+    getTags: (id) ->
+      appData.tags
 
 module.exports = app
