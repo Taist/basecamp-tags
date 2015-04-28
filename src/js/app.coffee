@@ -4,15 +4,15 @@ require('react/lib/DOMProperty').ID_ATTRIBUTE_NAME = 'data-vrbst-reactid'
 
 extend = require('react/lib/Object.assign');
 
-appData = {
-
-}
+appData = {}
 
 app =
   api: null
   exapi: {}
 
   observer: null
+
+  # todoContainers: {}
 
   init: (api) ->
     app.api = api
