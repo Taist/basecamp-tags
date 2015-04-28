@@ -213,10 +213,11 @@ TagsButton = React.createFactory(React.createClass({
       style: Styles.get('tag', {
         margin: 0,
         marginLeft: 4,
-        lineHeight: '15px',
         backgroundColor: 'white',
         border: '1px solid #ddd',
-        color: '#999'
+        color: '#999',
+        verticalAlign: 'top',
+        marginTop: 3
       })
     }, 'Tags');
   }
@@ -21930,12 +21931,16 @@ addonEntry = {
     return app.observer.waitElement('li.todo.show', function(todoElem) {
       var container, id, listPrevElem, tagName, tagsButton, tagsList;
       id = todoElem.id;
+      tagsButton = document.createElement('span');
       if (location.href.match(/todos\/\d+/i)) {
         tagName = 'div';
         listPrevElem = '.wrapper';
       } else {
         tagName = 'span';
         listPrevElem = '.content';
+        tagsButton.style.visibility = 'hidden';
+        tagsButton.setAttribute('data-behavior', 'hover_content');
+        tagsButton.setAttribute('data-hovercontent-strategy', 'visibility');
       }
       container = document.createElement(tagName);
       insertAfter(container, todoElem.querySelector(listPrevElem));
@@ -21943,10 +21948,6 @@ addonEntry = {
       React.render(tagsListComponent({
         tagsList: tagsList
       }), container);
-      tagsButton = document.createElement('span');
-      tagsButton.style.visibility = 'hidden';
-      tagsButton.setAttribute('data-behavior', 'hover_content');
-      tagsButton.setAttribute('data-hovercontent-strategy', 'visibility');
       tagsButton.innerHTML = 'TAGS';
       todoElem.querySelector('form.edit_todo span').appendChild(tagsButton);
       return React.render(tagsButtonComponent(), tagsButton);

@@ -17,12 +17,17 @@ addonEntry =
     app.observer.waitElement 'li.todo.show', (todoElem) ->
       id = todoElem.id
 
+      tagsButton = document.createElement 'span'
+
       if location.href.match /todos\/\d+/i
         tagName = 'div'
         listPrevElem = '.wrapper'
       else
         tagName = 'span'
         listPrevElem = '.content'
+        tagsButton.style.visibility = 'hidden'
+        tagsButton.setAttribute 'data-behavior', 'hover_content'
+        tagsButton.setAttribute 'data-hovercontent-strategy', 'visibility'
 
       container = document.createElement tagName
       # app.todoContainers[id] = container
@@ -30,10 +35,6 @@ addonEntry =
       tagsList = app.helpers.getTags id
       React.render tagsListComponent( { tagsList } ), container
 
-      tagsButton = document.createElement 'span'
-      tagsButton.style.visibility = 'hidden'
-      tagsButton.setAttribute 'data-behavior', 'hover_content'
-      tagsButton.setAttribute 'data-hovercontent-strategy', 'visibility'
       tagsButton.innerHTML = 'TAGS'
       todoElem.querySelector('form.edit_todo span').appendChild tagsButton
       React.render tagsButtonComponent(), tagsButton
