@@ -50,6 +50,9 @@ app =
 
   helpers:
     getTags: (id) ->
-      appData.tags
+      unless id.slice(-5) % 3
+        appData.tags
+      else
+        null
 
 module.exports = app

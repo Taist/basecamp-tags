@@ -13,9 +13,7 @@ TagsButton = React.createFactory React.createClass
         backgroundColor: 'white'
         border: '1px solid #ddd'
         color: '#999'
-        verticalAlign: 'top'
-        marginTop: 3
-      }
+      }, @props.styles
     }, 'Tags'
 
 module.exports = TagsButton

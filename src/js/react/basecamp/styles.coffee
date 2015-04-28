@@ -1,6 +1,6 @@
 extend = require 'react/lib/Object.assign'
 
-styles =
+namedStyles =
   tag:
     background: '#e2e9f8'
     fontSize: '12px'
@@ -12,7 +12,8 @@ styles =
     borderRadius: 12
     cursor: 'pointer'
 
-
 module.exports =
-  get: (name, style) ->
-    extend {}, styles[name], style
+  get: (name, styles...) ->
+    styles.unshift namedStyles[name]
+    styles.unshift {}
+    extend.apply null, styles

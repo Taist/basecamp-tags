@@ -15,29 +15,34 @@ addonEntry =
     app.observer = new DOMObserver()
 
     app.observer.waitElement 'li.todo.show', (todoElem) ->
-      id = todoElem.id
+      unless todoElem.querySelector '.taist'
+        id = todoElem.id
 
-      tagsButton = document.createElement 'span'
+        tagsButton = document.createElement 'span'
 
-      if location.href.match /todos\/\d+/i
-        tagName = 'div'
-        listPrevElem = '.wrapper'
-      else
-        tagName = 'span'
-        listPrevElem = '.content'
-        tagsButton.style.visibility = 'hidden'
-        tagsButton.setAttribute 'data-behavior', 'hover_content'
-        tagsButton.setAttribute 'data-hovercontent-strategy', 'visibility'
+        if location.href.match /todos\/\d+/i
+          tagName = 'div'
+          listPrevElem = '.wrapper'
+          buttonStyles =
+            verticalAlign: 'top'
+            marginTop: 3
+        else
+          tagName = 'span'
+          listPrevElem = '.content'
+          tagsButton.style.visibility = 'hidden'
+          tagsButton.setAttribute 'data-behavior', 'hover_content'
+          tagsButton.setAttribute 'data-hovercontent-strategy', 'visibility'
 
-      container = document.createElement tagName
-      # app.todoContainers[id] = container
-      insertAfter container, todoElem.querySelector listPrevElem
-      tagsList = app.helpers.getTags id
-      React.render tagsListComponent( { tagsList } ), container
+        container = document.createElement tagName
+        container.className = 'taist'
+        # app.todoContainers[id] = container
+        insertAfter container, todoElem.querySelector listPrevElem
+        tagsList = app.helpers.getTags id
+        React.render tagsListComponent( { tagsList } ), container
 
-      tagsButton.innerHTML = 'TAGS'
-      todoElem.querySelector('form.edit_todo span').appendChild tagsButton
-      React.render tagsButtonComponent(), tagsButton
+        unless tagsList?.length > 0
+          todoElem.querySelector('form.edit_todo span')?.appendChild tagsButton
+          React.render tagsButtonComponent( { styles: buttonStyles } ), tagsButton
 
 
 

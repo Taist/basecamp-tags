@@ -47,7 +47,11 @@ app = {
   actions: null,
   helpers: {
     getTags: function(id) {
-      return appData.tags;
+      if (!(id.slice(-5) % 3)) {
+        return appData.tags;
+      } else {
+        return null;
+      }
     }
   }
 };
@@ -153,11 +157,12 @@ module.exports = function(newElement, targetElement) {
 };
 
 },{}],5:[function(require,module,exports){
-var extend, styles;
+var extend, namedStyles,
+  slice = [].slice;
 
 extend = require('react/lib/Object.assign');
 
-styles = {
+namedStyles = {
   tag: {
     background: '#e2e9f8',
     fontSize: '12px',
@@ -172,8 +177,12 @@ styles = {
 };
 
 module.exports = {
-  get: function(name, style) {
-    return extend({}, styles[name], style);
+  get: function() {
+    var name, styles;
+    name = arguments[0], styles = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+    styles.unshift(namedStyles[name]);
+    styles.unshift({});
+    return extend.apply(null, styles);
   }
 };
 
@@ -215,10 +224,8 @@ TagsButton = React.createFactory(React.createClass({
         marginLeft: 4,
         backgroundColor: 'white',
         border: '1px solid #ddd',
-        color: '#999',
-        verticalAlign: 'top',
-        marginTop: 3
-      })
+        color: '#999'
+      }, this.props.styles)
     }, 'Tags');
   }
 }));
@@ -21929,28 +21936,40 @@ addonEntry = {
     DOMObserver = require('./helpers/domObserver');
     app.observer = new DOMObserver();
     return app.observer.waitElement('li.todo.show', function(todoElem) {
-      var container, id, listPrevElem, tagName, tagsButton, tagsList;
-      id = todoElem.id;
-      tagsButton = document.createElement('span');
-      if (location.href.match(/todos\/\d+/i)) {
-        tagName = 'div';
-        listPrevElem = '.wrapper';
-      } else {
-        tagName = 'span';
-        listPrevElem = '.content';
-        tagsButton.style.visibility = 'hidden';
-        tagsButton.setAttribute('data-behavior', 'hover_content');
-        tagsButton.setAttribute('data-hovercontent-strategy', 'visibility');
+      var buttonStyles, container, id, listPrevElem, ref, tagName, tagsButton, tagsList;
+      if (!todoElem.querySelector('.taist')) {
+        id = todoElem.id;
+        tagsButton = document.createElement('span');
+        if (location.href.match(/todos\/\d+/i)) {
+          tagName = 'div';
+          listPrevElem = '.wrapper';
+          buttonStyles = {
+            verticalAlign: 'top',
+            marginTop: 3
+          };
+        } else {
+          tagName = 'span';
+          listPrevElem = '.content';
+          tagsButton.style.visibility = 'hidden';
+          tagsButton.setAttribute('data-behavior', 'hover_content');
+          tagsButton.setAttribute('data-hovercontent-strategy', 'visibility');
+        }
+        container = document.createElement(tagName);
+        container.className = 'taist';
+        insertAfter(container, todoElem.querySelector(listPrevElem));
+        tagsList = app.helpers.getTags(id);
+        React.render(tagsListComponent({
+          tagsList: tagsList
+        }), container);
+        if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
+          if ((ref = todoElem.querySelector('form.edit_todo span')) != null) {
+            ref.appendChild(tagsButton);
+          }
+          return React.render(tagsButtonComponent({
+            styles: buttonStyles
+          }), tagsButton);
+        }
       }
-      container = document.createElement(tagName);
-      insertAfter(container, todoElem.querySelector(listPrevElem));
-      tagsList = app.helpers.getTags(id);
-      React.render(tagsListComponent({
-        tagsList: tagsList
-      }), container);
-      tagsButton.innerHTML = 'TAGS';
-      todoElem.querySelector('form.edit_todo span').appendChild(tagsButton);
-      return React.render(tagsButtonComponent(), tagsButton);
     });
   }
 };
