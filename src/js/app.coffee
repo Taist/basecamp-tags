@@ -37,6 +37,8 @@ app =
     app.exapi.setCompanyData = Q.nbind api.companyData.set, api.companyData
     app.exapi.getCompanyData = Q.nbind api.companyData.get, api.companyData
 
+    app.exapi.setPartOfCompanyData = Q.nbind api.companyData.setPart, api.companyData
+
     app.exapi.updateCompanyData = (key, newData) ->
       app.exapi.getCompanyData key
       .then (storedData) ->

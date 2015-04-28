@@ -23,15 +23,14 @@ addonEntry =
         if location.href.match /todos\/\d+/i
           tagName = 'div'
           listPrevElem = '.wrapper'
-          buttonStyles =
-            verticalAlign: 'top'
-            marginTop: 3
+          buttonStyles = visibility: 'visible', zIndex: 996
+          dataBehavior = 'expandable expand_exclusively'
         else
           tagName = 'span'
           listPrevElem = '.content'
-          tagsButton.style.visibility = 'hidden'
-          tagsButton.setAttribute 'data-behavior', 'hover_content'
-          tagsButton.setAttribute 'data-hovercontent-strategy', 'visibility'
+          dataBehavior = 'expandable expand_exclusively hover_content'
+
+        tagsButton.style.position = 'relative'
 
         container = document.createElement tagName
         container.className = 'taist'
@@ -41,8 +40,8 @@ addonEntry =
         React.render tagsListComponent( { tagsList } ), container
 
         unless tagsList?.length > 0
-          todoElem.querySelector('form.edit_todo span')?.appendChild tagsButton
-          React.render tagsButtonComponent( { styles: buttonStyles } ), tagsButton
+          insertAfter tagsButton, todoElem.querySelector('form.edit_todo span')
+          React.render tagsButtonComponent( { styles: buttonStyles, dataBehavior } ), tagsButton
 
 
 
