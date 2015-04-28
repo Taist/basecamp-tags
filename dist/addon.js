@@ -21880,14 +21880,21 @@ addonEntry = {
     DOMObserver = require('./helpers/domObserver');
     app.observer = new DOMObserver();
     return app.observer.waitElement('li.todo.show', function(todoElem) {
-      var container, id, tagsList;
+      var container, id, prevElem, tagName, tagsList;
       id = todoElem.id;
-      container = document.createElement('span');
+      if (location.href.match(/todos\/\d+/i)) {
+        tagName = 'div';
+        prevElem = '.wrapper';
+      } else {
+        tagName = 'span';
+        prevElem = '.content';
+      }
+      container = document.createElement(tagName);
+      insertAfter(container, todoElem.querySelector(prevElem));
       tagsList = app.helpers.getTags(id);
-      React.render(tagsListComponent({
+      return React.render(tagsListComponent({
         tagsList: tagsList
       }), container);
-      return insertAfter(container, todoElem.querySelector('.content'));
     });
   }
 };

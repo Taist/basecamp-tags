@@ -15,12 +15,21 @@ addonEntry =
 
     app.observer.waitElement 'li.todo.show', (todoElem) ->
       id = todoElem.id
-      container = document.createElement 'span'
+
+      if location.href.match /todos\/\d+/i
+        tagName = 'div'
+        prevElem = '.wrapper'
+      else
+        tagName = 'span'
+        prevElem = '.content'
+
+      container = document.createElement tagName
       # app.todoContainers[id] = container
+
+      insertAfter container, todoElem.querySelector prevElem
 
       tagsList = app.helpers.getTags id
       React.render tagsListComponent( { tagsList } ), container
 
-      insertAfter container, todoElem.querySelector '.content'
 
 module.exports = addonEntry
