@@ -41,7 +41,13 @@ addonEntry =
 
         unless tagsList?.length > 0
           insertAfter tagsButton, todoElem.querySelector('form.edit_todo span')
-          React.render tagsButtonComponent( { styles: buttonStyles, dataBehavior } ), tagsButton
+          buttonData = {
+            styles: buttonStyles
+            dataBehavior
+            onSaveTag: app.actions.onSaveTag
+            getAllTags: app.helpers.getAllTags
+          }
+          React.render tagsButtonComponent( buttonData ), tagsButton
 
 
 

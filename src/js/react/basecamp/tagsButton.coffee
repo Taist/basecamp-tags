@@ -4,14 +4,33 @@ React = require 'react'
 
 Styles = require './styles'
 BasecampPopup = require './popup'
+TagsList = require './tagsList'
+TagEditor = require './tagEditor'
+
 
 TagsButton = React.createFactory React.createClass
-  onClick: ->
-    console.log 'onclick'
+  getInitialState: ->
+    tagsList: []
+
+  updateTagsList: ->
+    @setState tagsList: @props.getAllTags()
+
+  componentWillReceiveProps: (nextProps) ->
+    @updateTagsList()
+
+  componentDidMount: ->
+    @updateTagsList()
 
   preventDefault: (event) ->
     event.preventDefault()
     event.stopPropagation()
+
+  onPopupOpen: ->
+    @updateTagsList()
+
+  onSaveTag: (tag) ->
+    @props.onSaveTag(tag)
+    @updateTagsList()
 
   render: ->
     span {
@@ -22,7 +41,6 @@ TagsButton = React.createFactory React.createClass
         className: 'pill blank has_balloon exclusively_expanded'
         'data-behavior': @props.dataBehavior
         'data-hovercontent-strategy': 'visibility'
-        onClick: @onClick
         # onMouseEnter: @preventDefault
         # onMouseLeave: @preventDefault
         # onMouseOver: @preventDefault
@@ -32,9 +50,14 @@ TagsButton = React.createFactory React.createClass
         a {
           href: '#'
           'data-behavior': 'expand_on_click'
+          onClick: @onPopupOpen
         },
           span {}, 'Tags'
 
-        BasecampPopup {}
+        BasecampPopup {
+          header: 'Assign tags on this to-do'
+          content: TagsList { tagsList: @state.tagsList }
+          footer: TagEditor { onSaveTag: @onSaveTag }
+        }
 
 module.exports = TagsButton

@@ -7,18 +7,7 @@ generateGUID = require './helpers/generateGUID'
 
 appData = {}
 
-appData.tags = [
-  {
-    id: generateGUID()
-    name: 'SEO'
-    color: 'white'
-  },
-  {
-    id: generateGUID()
-    name: 'CPQ'
-    color: 'white'
-  }
-]
+appData.tagsIndex = {}
 
 app =
   api: null
@@ -48,13 +37,23 @@ app =
         .then ->
           updatedData
 
-  actions: null
+  actions:
+    onSaveTag: (tag) ->
+      unless tag.id
+        tag.id = generateGUID()
+
+      appData.tagsIndex[tag.id] = tag
+      console.log tag
+      tag
 
   helpers:
     getTags: (id) ->
-      unless id.slice(-5) % 3
-        appData.tags
-      else
-        null
+      null
+
+    getAllTags: ->
+      tags = []
+      for id, tag of appData.tagsIndex
+        tags.push tag
+      tags
 
 module.exports = app

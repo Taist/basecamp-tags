@@ -7,7 +7,7 @@ Styles = require './styles'
 Tag = React.createFactory React.createClass
   render: ->
     span {
-      style: Styles.get 'tag', { marginRight: 4 }
+      style: Styles.get 'tag', { marginRight: 4, marginBottom: 2 }
     }, @props.name
 
 module.exports = Tag
