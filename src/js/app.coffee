@@ -42,13 +42,19 @@ app =
       unless tag.id
         tag.id = generateGUID()
 
-      appData.tagsIndex[tag.id] = tag
-      console.log tag
-      tag
+      app.exapi.setPartOfCompanyData 'tagsIndex', tag.id, tag
+      .then ->
+        appData.tagsIndex[tag.id] = tag
+        tag
 
   helpers:
     getTags: (id) ->
       null
+
+    loadAllTags: ->
+      app.exapi.getCompanyData 'tagsIndex'
+      .then (index) ->
+        extend appData.tagsIndex, index
 
     getAllTags: ->
       tags = []

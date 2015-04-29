@@ -40,14 +40,20 @@ app = {
       if (!tag.id) {
         tag.id = generateGUID();
       }
-      appData.tagsIndex[tag.id] = tag;
-      console.log(tag);
-      return tag;
+      return app.exapi.setPartOfCompanyData('tagsIndex', tag.id, tag).then(function() {
+        appData.tagsIndex[tag.id] = tag;
+        return tag;
+      });
     }
   },
   helpers: {
     getTags: function(id) {
       return null;
+    },
+    loadAllTags: function() {
+      return app.exapi.getCompanyData('tagsIndex').then(function(index) {
+        return extend(appData.tagsIndex, index);
+      });
     },
     getAllTags: function() {
       var id, ref, tag, tags;
@@ -362,8 +368,11 @@ TagsButton = React.createFactory(React.createClass({
     return this.updateTagsList();
   },
   onSaveTag: function(tag) {
-    this.props.onSaveTag(tag);
-    return this.updateTagsList();
+    return this.props.onSaveTag(tag).then((function(_this) {
+      return function() {
+        return _this.updateTagsList();
+      };
+    })(this));
   },
   render: function() {
     return span({
@@ -22095,43 +22104,45 @@ addonEntry = {
     app.init(_taistApi);
     DOMObserver = require('./helpers/domObserver');
     app.observer = new DOMObserver();
-    return app.observer.waitElement('li.todo.show', function(todoElem) {
-      var buttonData, buttonStyles, container, dataBehavior, id, listPrevElem, tagName, tagsButton, tagsList;
-      if (!todoElem.querySelector('.taist')) {
-        id = todoElem.id;
-        tagsButton = document.createElement('span');
-        if (location.href.match(/todos\/\d+/i)) {
-          tagName = 'div';
-          listPrevElem = '.wrapper';
-          buttonStyles = {
-            visibility: 'visible',
-            zIndex: 996
-          };
-          dataBehavior = 'expandable expand_exclusively';
-        } else {
-          tagName = 'span';
-          listPrevElem = '.content';
-          dataBehavior = 'expandable expand_exclusively hover_content';
+    return app.helpers.loadAllTags().then(function() {
+      return app.observer.waitElement('li.todo.show', function(todoElem) {
+        var buttonData, buttonStyles, container, dataBehavior, id, listPrevElem, tagName, tagsButton, tagsList;
+        if (!todoElem.querySelector('.taist')) {
+          id = todoElem.id;
+          tagsButton = document.createElement('span');
+          if (location.href.match(/todos\/\d+/i)) {
+            tagName = 'div';
+            listPrevElem = '.wrapper';
+            buttonStyles = {
+              visibility: 'visible',
+              zIndex: 996
+            };
+            dataBehavior = 'expandable expand_exclusively';
+          } else {
+            tagName = 'span';
+            listPrevElem = '.content';
+            dataBehavior = 'expandable expand_exclusively hover_content';
+          }
+          tagsButton.style.position = 'relative';
+          container = document.createElement(tagName);
+          container.className = 'taist';
+          insertAfter(container, todoElem.querySelector(listPrevElem));
+          tagsList = app.helpers.getTags(id);
+          React.render(tagsListComponent({
+            tagsList: tagsList
+          }), container);
+          if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
+            insertAfter(tagsButton, todoElem.querySelector('form.edit_todo span'));
+            buttonData = {
+              styles: buttonStyles,
+              dataBehavior: dataBehavior,
+              onSaveTag: app.actions.onSaveTag,
+              getAllTags: app.helpers.getAllTags
+            };
+            return React.render(tagsButtonComponent(buttonData), tagsButton);
+          }
         }
-        tagsButton.style.position = 'relative';
-        container = document.createElement(tagName);
-        container.className = 'taist';
-        insertAfter(container, todoElem.querySelector(listPrevElem));
-        tagsList = app.helpers.getTags(id);
-        React.render(tagsListComponent({
-          tagsList: tagsList
-        }), container);
-        if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
-          insertAfter(tagsButton, todoElem.querySelector('form.edit_todo span'));
-          buttonData = {
-            styles: buttonStyles,
-            dataBehavior: dataBehavior,
-            onSaveTag: app.actions.onSaveTag,
-            getAllTags: app.helpers.getAllTags
-          };
-          return React.render(tagsButtonComponent(buttonData), tagsButton);
-        }
-      }
+      });
     });
   }
 };

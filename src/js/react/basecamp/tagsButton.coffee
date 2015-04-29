@@ -30,7 +30,8 @@ TagsButton = React.createFactory React.createClass
 
   onSaveTag: (tag) ->
     @props.onSaveTag(tag)
-    @updateTagsList()
+    .then =>
+      @updateTagsList()
 
   render: ->
     span {

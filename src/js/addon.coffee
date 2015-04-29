@@ -14,42 +14,41 @@ addonEntry =
     DOMObserver = require './helpers/domObserver'
     app.observer = new DOMObserver()
 
-    app.observer.waitElement 'li.todo.show', (todoElem) ->
-      unless todoElem.querySelector '.taist'
-        id = todoElem.id
+    app.helpers.loadAllTags().then ->
 
-        tagsButton = document.createElement 'span'
+      app.observer.waitElement 'li.todo.show', (todoElem) ->
+        unless todoElem.querySelector '.taist'
+          id = todoElem.id
 
-        if location.href.match /todos\/\d+/i
-          tagName = 'div'
-          listPrevElem = '.wrapper'
-          buttonStyles = visibility: 'visible', zIndex: 996
-          dataBehavior = 'expandable expand_exclusively'
-        else
-          tagName = 'span'
-          listPrevElem = '.content'
-          dataBehavior = 'expandable expand_exclusively hover_content'
+          tagsButton = document.createElement 'span'
 
-        tagsButton.style.position = 'relative'
+          if location.href.match /todos\/\d+/i
+            tagName = 'div'
+            listPrevElem = '.wrapper'
+            buttonStyles = visibility: 'visible', zIndex: 996
+            dataBehavior = 'expandable expand_exclusively'
+          else
+            tagName = 'span'
+            listPrevElem = '.content'
+            dataBehavior = 'expandable expand_exclusively hover_content'
 
-        container = document.createElement tagName
-        container.className = 'taist'
-        # app.todoContainers[id] = container
-        insertAfter container, todoElem.querySelector listPrevElem
-        tagsList = app.helpers.getTags id
-        React.render tagsListComponent( { tagsList } ), container
+          tagsButton.style.position = 'relative'
 
-        unless tagsList?.length > 0
-          insertAfter tagsButton, todoElem.querySelector('form.edit_todo span')
-          buttonData = {
-            styles: buttonStyles
-            dataBehavior
-            onSaveTag: app.actions.onSaveTag
-            getAllTags: app.helpers.getAllTags
-          }
-          React.render tagsButtonComponent( buttonData ), tagsButton
+          container = document.createElement tagName
+          container.className = 'taist'
+          # app.todoContainers[id] = container
+          insertAfter container, todoElem.querySelector listPrevElem
+          tagsList = app.helpers.getTags id
+          React.render tagsListComponent( { tagsList } ), container
 
-
-
+          unless tagsList?.length > 0
+            insertAfter tagsButton, todoElem.querySelector('form.edit_todo span')
+            buttonData = {
+              styles: buttonStyles
+              dataBehavior
+              onSaveTag: app.actions.onSaveTag
+              getAllTags: app.helpers.getAllTags
+            }
+            React.render tagsButtonComponent( buttonData ), tagsButton
 
 module.exports = addonEntry
