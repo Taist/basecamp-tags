@@ -14,7 +14,8 @@ addonEntry =
     DOMObserver = require './helpers/domObserver'
     app.observer = new DOMObserver()
 
-    app.helpers.loadAllTags().then ->
+    app.helpers.loadAllTags()
+    .then (tagsIndex) ->
 
       app.observer.waitElement 'li.todo.show', (todoElem) ->
         unless todoElem.querySelector '.taist'
@@ -38,17 +39,25 @@ addonEntry =
           container.className = 'taist'
           # app.todoContainers[id] = container
           insertAfter container, todoElem.querySelector listPrevElem
-          tagsList = app.helpers.getTags id
-          React.render tagsListComponent( { tagsList } ), container
 
-          unless tagsList?.length > 0
-            insertAfter tagsButton, todoElem.querySelector('form.edit_todo span')
-            buttonData = {
-              styles: buttonStyles
-              dataBehavior
-              onSaveTag: app.actions.onSaveTag
-              getAllTags: app.helpers.getAllTags
-            }
-            React.render tagsButtonComponent( buttonData ), tagsButton
+          app.helpers.getTags id
+          .then (tagsList) ->
+            React.render tagsListComponent( { tagsList, tagsIndex } ), container
+
+            unless tagsList?.length > 0
+              insertAfter tagsButton, todoElem.querySelector('form.edit_todo span')
+              buttonData = {
+                todoId: id
+                styles: buttonStyles
+                dataBehavior
+
+                onSaveTag: app.actions.onSaveTag
+                onAssignTag: app.actions.onAssignTag
+
+                getAllTags: app.helpers.getAllTags
+              }
+              React.render tagsButtonComponent( buttonData ), tagsButton
+          .catch (error) ->
+            console.log error
 
 module.exports = addonEntry

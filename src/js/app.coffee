@@ -27,6 +27,7 @@ app =
     app.exapi.getCompanyData = Q.nbind api.companyData.get, api.companyData
 
     app.exapi.setPartOfCompanyData = Q.nbind api.companyData.setPart, api.companyData
+    app.exapi.getPartOfCompanyData = Q.nbind api.companyData.getPart, api.companyData
 
     app.exapi.updateCompanyData = (key, newData) ->
       app.exapi.getCompanyData key
@@ -47,9 +48,30 @@ app =
         appData.tagsIndex[tag.id] = tag
         tag
 
+    onAssignTag: (todoId, tagId) ->
+      console.log 'onAssignTag', todoId, tagId
+      app.helpers.getTags todoId
+      .then (tags) ->
+        console.log tags
+        if tags.indexOf(tagId) < 0
+          tags.push tagId
+          app.helpers.setTags todoId, tags
+          .then ->
+            tags
+        else
+          tags
+      .catch (error) ->
+        console.log error
+
   helpers:
-    getTags: (id) ->
-      null
+    getTags: (todoId) ->
+      app.exapi.getPartOfCompanyData 'todosTags', todoId
+      .then (tags) ->
+        tags ? []
+
+    setTags: (todoId, tags) ->
+      console.log 'setTags', todoId, tags
+      app.exapi.setPartOfCompanyData 'todosTags', todoId, tags
 
     loadAllTags: ->
       app.exapi.getCompanyData 'tagsIndex'
@@ -57,9 +79,9 @@ app =
         extend appData.tagsIndex, index
 
     getAllTags: ->
-      tags = []
+      tagsList = []
       for id, tag of appData.tagsIndex
-        tags.push tag
-      tags
+        tagsList.push id
+      { tagsList, tagsIndex: appData.tagsIndex }
 
 module.exports = app

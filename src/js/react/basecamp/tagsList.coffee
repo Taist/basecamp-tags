@@ -8,8 +8,11 @@ TagsList = React.createFactory React.createClass
   render: ->
     if @props.tagsList?.length > 0
       div { style: display: 'inline-block', marginRight: -4 },
-        @props.tagsList.map (tagInfo) ->
-          Tag tagInfo
+        @props.tagsList.map (tagId) =>
+          if @props.tagsIndex?[tagId]?
+            Tag @props.tagsIndex[tagId]
+          else
+            null
     else
       null
 

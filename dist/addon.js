@@ -24,6 +24,7 @@ app = {
     app.exapi.setCompanyData = Q.nbind(api.companyData.set, api.companyData);
     app.exapi.getCompanyData = Q.nbind(api.companyData.get, api.companyData);
     app.exapi.setPartOfCompanyData = Q.nbind(api.companyData.setPart, api.companyData);
+    app.exapi.getPartOfCompanyData = Q.nbind(api.companyData.getPart, api.companyData);
     return app.exapi.updateCompanyData = function(key, newData) {
       return app.exapi.getCompanyData(key).then(function(storedData) {
         var updatedData;
@@ -44,11 +45,33 @@ app = {
         appData.tagsIndex[tag.id] = tag;
         return tag;
       });
+    },
+    onAssignTag: function(todoId, tagId) {
+      console.log('onAssignTag', todoId, tagId);
+      return app.helpers.getTags(todoId).then(function(tags) {
+        console.log(tags);
+        if (tags.indexOf(tagId) < 0) {
+          tags.push(tagId);
+          return app.helpers.setTags(todoId, tags).then(function() {
+            return tags;
+          });
+        } else {
+          return tags;
+        }
+      })["catch"](function(error) {
+        return console.log(error);
+      });
     }
   },
   helpers: {
-    getTags: function(id) {
-      return null;
+    getTags: function(todoId) {
+      return app.exapi.getPartOfCompanyData('todosTags', todoId).then(function(tags) {
+        return tags != null ? tags : [];
+      });
+    },
+    setTags: function(todoId, tags) {
+      console.log('setTags', todoId, tags);
+      return app.exapi.setPartOfCompanyData('todosTags', todoId, tags);
     },
     loadAllTags: function() {
       return app.exapi.getCompanyData('tagsIndex').then(function(index) {
@@ -56,14 +79,17 @@ app = {
       });
     },
     getAllTags: function() {
-      var id, ref, tag, tags;
-      tags = [];
+      var id, ref, tag, tagsList;
+      tagsList = [];
       ref = appData.tagsIndex;
       for (id in ref) {
         tag = ref[id];
-        tags.push(tag);
+        tagsList.push(id);
       }
-      return tags;
+      return {
+        tagsList: tagsList,
+        tagsIndex: appData.tagsIndex
+      };
     }
   }
 };
@@ -238,6 +264,7 @@ Styles = require('./styles');
 Tag = React.createFactory(React.createClass({
   render: function() {
     return span({
+      key: this.props.id,
       style: Styles.get('tag', {
         marginRight: 4,
         marginBottom: 2
@@ -346,13 +373,14 @@ TagEditor = require('./tagEditor');
 TagsButton = React.createFactory(React.createClass({
   getInitialState: function() {
     return {
-      tagsList: []
+      tagsList: [],
+      tagsIndex: {}
     };
   },
   updateTagsList: function() {
-    return this.setState({
-      tagsList: this.props.getAllTags()
-    });
+    var allTags;
+    allTags = this.props.getAllTags();
+    return this.setState(allTags);
   },
   componentWillReceiveProps: function(nextProps) {
     return this.updateTagsList();
@@ -370,7 +398,8 @@ TagsButton = React.createFactory(React.createClass({
   onSaveTag: function(tag) {
     return this.props.onSaveTag(tag).then((function(_this) {
       return function() {
-        return _this.updateTagsList();
+        _this.updateTagsList();
+        return _this.props.onAssignTag(_this.props.todoId, tag.id);
       };
     })(this));
   },
@@ -390,7 +419,8 @@ TagsButton = React.createFactory(React.createClass({
     }, span({}, 'Tags')), BasecampPopup({
       header: 'Assign tags on this to-do',
       content: TagsList({
-        tagsList: this.state.tagsList
+        tagsList: this.state.tagsList,
+        tagsIndex: this.state.tagsIndex
       }),
       footer: TagEditor({
         onSaveTag: this.onSaveTag
@@ -419,9 +449,16 @@ TagsList = React.createFactory(React.createClass({
           display: 'inline-block',
           marginRight: -4
         }
-      }, this.props.tagsList.map(function(tagInfo) {
-        return Tag(tagInfo);
-      }));
+      }, this.props.tagsList.map((function(_this) {
+        return function(tagId) {
+          var ref1;
+          if (((ref1 = _this.props.tagsIndex) != null ? ref1[tagId] : void 0) != null) {
+            return Tag(_this.props.tagsIndex[tagId]);
+          } else {
+            return null;
+          }
+        };
+      })(this)));
     } else {
       return null;
     }
@@ -22104,9 +22141,9 @@ addonEntry = {
     app.init(_taistApi);
     DOMObserver = require('./helpers/domObserver');
     app.observer = new DOMObserver();
-    return app.helpers.loadAllTags().then(function() {
+    return app.helpers.loadAllTags().then(function(tagsIndex) {
       return app.observer.waitElement('li.todo.show', function(todoElem) {
-        var buttonData, buttonStyles, container, dataBehavior, id, listPrevElem, tagName, tagsButton, tagsList;
+        var buttonStyles, container, dataBehavior, id, listPrevElem, tagName, tagsButton;
         if (!todoElem.querySelector('.taist')) {
           id = todoElem.id;
           tagsButton = document.createElement('span');
@@ -22127,20 +22164,27 @@ addonEntry = {
           container = document.createElement(tagName);
           container.className = 'taist';
           insertAfter(container, todoElem.querySelector(listPrevElem));
-          tagsList = app.helpers.getTags(id);
-          React.render(tagsListComponent({
-            tagsList: tagsList
-          }), container);
-          if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
-            insertAfter(tagsButton, todoElem.querySelector('form.edit_todo span'));
-            buttonData = {
-              styles: buttonStyles,
-              dataBehavior: dataBehavior,
-              onSaveTag: app.actions.onSaveTag,
-              getAllTags: app.helpers.getAllTags
-            };
-            return React.render(tagsButtonComponent(buttonData), tagsButton);
-          }
+          return app.helpers.getTags(id).then(function(tagsList) {
+            var buttonData;
+            React.render(tagsListComponent({
+              tagsList: tagsList,
+              tagsIndex: tagsIndex
+            }), container);
+            if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
+              insertAfter(tagsButton, todoElem.querySelector('form.edit_todo span'));
+              buttonData = {
+                todoId: id,
+                styles: buttonStyles,
+                dataBehavior: dataBehavior,
+                onSaveTag: app.actions.onSaveTag,
+                onAssignTag: app.actions.onAssignTag,
+                getAllTags: app.helpers.getAllTags
+              };
+              return React.render(tagsButtonComponent(buttonData), tagsButton);
+            }
+          })["catch"](function(error) {
+            return console.log(error);
+          });
         }
       });
     });

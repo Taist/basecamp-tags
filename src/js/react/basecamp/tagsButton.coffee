@@ -11,9 +11,11 @@ TagEditor = require './tagEditor'
 TagsButton = React.createFactory React.createClass
   getInitialState: ->
     tagsList: []
+    tagsIndex: {}
 
-  updateTagsList: ->
-    @setState tagsList: @props.getAllTags()
+  updateTagsList: () ->
+    allTags = @props.getAllTags()
+    @setState allTags
 
   componentWillReceiveProps: (nextProps) ->
     @updateTagsList()
@@ -29,9 +31,10 @@ TagsButton = React.createFactory React.createClass
     @updateTagsList()
 
   onSaveTag: (tag) ->
-    @props.onSaveTag(tag)
+    @props.onSaveTag tag
     .then =>
       @updateTagsList()
+      @props.onAssignTag @props.todoId, tag.id
 
   render: ->
     span {
@@ -57,7 +60,7 @@ TagsButton = React.createFactory React.createClass
 
         BasecampPopup {
           header: 'Assign tags on this to-do'
-          content: TagsList { tagsList: @state.tagsList }
+          content: TagsList { tagsList: @state.tagsList, tagsIndex: @state.tagsIndex }
           footer: TagEditor { onSaveTag: @onSaveTag }
         }
 
