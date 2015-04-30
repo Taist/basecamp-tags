@@ -76,21 +76,16 @@ TagsButton = React.createFactory React.createClass
         visibility: 'hidden'
         marginLeft: 0
       }, @props.styles
-      className: 'pill blank has_balloon exclusively_expanded'
+      className: @props.classes + ' has_balloon exclusively_expanded'
       'data-behavior': @props.dataBehavior
       'data-hovercontent-strategy': 'visibility'
-      # onMouseEnter: @preventDefault
-      # onMouseLeave: @preventDefault
-      # onMouseOver: @preventDefault
-      # onMouseOut: @preventDefault
-      # onMouseMove: @preventDefault
     },
       a {
         href: '#'
         'data-behavior': 'expand_on_click'
         onClick: @onPopupOpen
       },
-        span {}, 'Tags'
+        @props.content
 
       BasecampPopup {
         header: 'Assign tags to this to-do'

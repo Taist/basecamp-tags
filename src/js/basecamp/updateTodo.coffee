@@ -4,39 +4,43 @@ React = require 'react'
 tagsListComponent = require '../react/basecamp/tagsList'
 tagsButtonComponent = require '../react/basecamp/tagsButton'
 
+{ span } = React.DOM
+
 updateTodo = (todoId) ->
   app.helpers.getTags todoId
   .then (tagsList) ->
 
-    tagsIndex = app.helpers.getAllTags().tagsIndex
-    React.render tagsListComponent( { tagsList, tagsIndex } ), app.todoContainers[todoId].list
+    buttonData = {
+      todoId: todoId
+
+      dataBehavior: 'expandable expand_exclusively'
+
+      onSaveTag: app.actions.onSaveTag
+      onAssignTag: app.actions.onAssignTag
+      getAllTags: app.helpers.getAllTags
+
+      onPopupClose: ->
+        updateTodo todoId
+    }
 
     unless tagsList?.length > 0
+      buttonData.content = span {}, 'Tags'
+      buttonData.classes = 'pill blank'
 
       if location.href.match /todos\/\d+/i
-        dataBehavior = 'expandable expand_exclusively'
+        buttonData.styles = { visibility: 'visible', zIndex: 996, marginLeft: 4 }
+        React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
       else
-        dataBehavior = 'expandable expand_exclusively hover_content'
+        buttonData.dataBehavior += ' hover_content'
+        buttonData.styles = { visibility: 'hidden' }
+        React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
 
-      buttonData = {
-        todoId: todoId
-        styles: { visibility: 'visible', zIndex: 996 } if location.href.match /todos\/\d+/i
+    if tagsList?.length > 0
+      buttonData.styles = { visibility: 'visible' }
+      tagsIndex = app.helpers.getAllTags().tagsIndex
+      buttonData.content = tagsListComponent { tagsList, tagsIndex }
 
-        dataBehavior
-
-        onSaveTag: app.actions.onSaveTag
-        onAssignTag: app.actions.onAssignTag
-
-        getAllTags: app.helpers.getAllTags
-
-        onPopupClose: ->
-          updateTodo todoId
-      }
-
-      React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
-
-    else
-      React.render React.DOM.span(), app.todoContainers[todoId].button
+      React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].list
 
   .catch (error) ->
     console.log error

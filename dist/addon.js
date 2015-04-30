@@ -97,7 +97,7 @@ app = {
 module.exports = app;
 
 },{"./helpers/generateGUID":4,"q":13,"react/lib/DOMProperty":22,"react/lib/Object.assign":39}],2:[function(require,module,exports){
-var React, app, tagsButtonComponent, tagsListComponent, updateTodo;
+var React, app, span, tagsButtonComponent, tagsListComponent, updateTodo;
 
 app = require('../app');
 
@@ -107,37 +107,49 @@ tagsListComponent = require('../react/basecamp/tagsList');
 
 tagsButtonComponent = require('../react/basecamp/tagsButton');
 
+span = React.DOM.span;
+
 updateTodo = function(todoId) {
   return app.helpers.getTags(todoId).then(function(tagsList) {
-    var buttonData, dataBehavior, tagsIndex;
-    tagsIndex = app.helpers.getAllTags().tagsIndex;
-    React.render(tagsListComponent({
-      tagsList: tagsList,
-      tagsIndex: tagsIndex
-    }), app.todoContainers[todoId].list);
-    if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
-      if (location.href.match(/todos\/\d+/i)) {
-        dataBehavior = 'expandable expand_exclusively';
-      } else {
-        dataBehavior = 'expandable expand_exclusively hover_content';
+    var buttonData, tagsIndex;
+    buttonData = {
+      todoId: todoId,
+      dataBehavior: 'expandable expand_exclusively',
+      onSaveTag: app.actions.onSaveTag,
+      onAssignTag: app.actions.onAssignTag,
+      getAllTags: app.helpers.getAllTags,
+      onPopupClose: function() {
+        return updateTodo(todoId);
       }
-      buttonData = {
-        todoId: todoId,
-        styles: location.href.match(/todos\/\d+/i) ? {
+    };
+    if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
+      buttonData.content = span({}, 'Tags');
+      buttonData.classes = 'pill blank';
+      if (location.href.match(/todos\/\d+/i)) {
+        buttonData.styles = {
           visibility: 'visible',
-          zIndex: 996
-        } : void 0,
-        dataBehavior: dataBehavior,
-        onSaveTag: app.actions.onSaveTag,
-        onAssignTag: app.actions.onAssignTag,
-        getAllTags: app.helpers.getAllTags,
-        onPopupClose: function() {
-          return updateTodo(todoId);
-        }
+          zIndex: 996,
+          marginLeft: 4
+        };
+        React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
+      } else {
+        buttonData.dataBehavior += ' hover_content';
+        buttonData.styles = {
+          visibility: 'hidden'
+        };
+        React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
+      }
+    }
+    if ((tagsList != null ? tagsList.length : void 0) > 0) {
+      buttonData.styles = {
+        visibility: 'visible'
       };
-      return React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
-    } else {
-      return React.render(React.DOM.span(), app.todoContainers[todoId].button);
+      tagsIndex = app.helpers.getAllTags().tagsIndex;
+      buttonData.content = tagsListComponent({
+        tagsList: tagsList,
+        tagsIndex: tagsIndex
+      });
+      return React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].list);
     }
   })["catch"](function(error) {
     return console.log(error);
@@ -526,14 +538,14 @@ TagsButton = React.createFactory(React.createClass({
         visibility: 'hidden',
         marginLeft: 0
       }, this.props.styles),
-      className: 'pill blank has_balloon exclusively_expanded',
+      className: this.props.classes + ' has_balloon exclusively_expanded',
       'data-behavior': this.props.dataBehavior,
       'data-hovercontent-strategy': 'visibility'
     }, a({
       href: '#',
       'data-behavior': 'expand_on_click',
       onClick: this.onPopupOpen
-    }, span({}, 'Tags')), BasecampPopup({
+    }, this.props.content), BasecampPopup({
       header: 'Assign tags to this to-do',
       content: TagsList({
         tagsList: this.state.tagsList,
