@@ -329,6 +329,10 @@ span = React.DOM.span;
 Styles = require('./styles');
 
 Tag = React.createFactory(React.createClass({
+  onClick: function() {
+    var base;
+    return typeof (base = this.props).onClick === "function" ? base.onClick(this.props.id, !this.props.isInactive) : void 0;
+  },
   render: function() {
     var opacity;
     opacity = this.props.isInactive ? 0.4 : 1;
@@ -338,7 +342,8 @@ Tag = React.createFactory(React.createClass({
         marginRight: 4,
         marginBottom: 2,
         opacity: opacity
-      })
+      }),
+      onClick: this.onClick
     }, this.props.name);
   }
 }));
@@ -547,6 +552,19 @@ TagsButton = React.createFactory(React.createClass({
       };
     })(this));
   },
+  onClickByTag: function(tagId, isActiveNow) {
+    if (isActiveNow) {
+      return console.log(tagId, isActiveNow);
+    } else {
+      return this.props.onAssignTag(this.props.todoId, tagId).then((function(_this) {
+        return function(tagsList) {
+          return _this.setState({
+            activeTags: tagsList
+          });
+        };
+      })(this));
+    }
+  },
   render: function() {
     return span({
       ref: 'tagsButton',
@@ -566,7 +584,8 @@ TagsButton = React.createFactory(React.createClass({
       content: TagsList({
         tagsList: this.state.tagsList,
         tagsIndex: this.state.tagsIndex,
-        activeTags: this.state.activeTags
+        activeTags: this.state.activeTags,
+        onClick: this.onClickByTag
       }),
       footer: TagEditor({
         onSaveTag: this.onSaveTag
@@ -599,14 +618,18 @@ TagsList = React.createFactory(React.createClass({
         }
       }, this.props.tagsList.map((function(_this) {
         return function(tagId) {
-          var isInactive, ref1, ref2;
+          var isInactive, onClick, ref1, ref2;
           if (((ref1 = _this.props.tagsIndex) != null ? ref1[tagId] : void 0) != null) {
             isInactive = _this.props.activeTags != null;
             if (((ref2 = _this.props.activeTags) != null ? ref2.indexOf(tagId) : void 0) > -1) {
               isInactive = false;
             }
+            if (typeof _this.props.onClick === 'function') {
+              onClick = _this.props.onClick;
+            }
             return Tag(extend({}, _this.props.tagsIndex[tagId], {
-              isInactive: isInactive
+              isInactive: isInactive,
+              onClick: onClick
             }));
           } else {
             return null;

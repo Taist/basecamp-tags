@@ -72,6 +72,14 @@ TagsButton = React.createFactory React.createClass
     .then (tagsList) =>
       @setState activeTags: tagsList
 
+  onClickByTag: (tagId, isActiveNow) ->
+    if isActiveNow
+      console.log tagId, isActiveNow
+    else
+      @props.onAssignTag @props.todoId, tagId
+      .then (tagsList) =>
+        @setState activeTags: tagsList
+
   render: ->
 
     span {
@@ -97,6 +105,7 @@ TagsButton = React.createFactory React.createClass
           tagsList: @state.tagsList
           tagsIndex: @state.tagsIndex
           activeTags: @state.activeTags
+          onClick: @onClickByTag
         }
         footer: TagEditor { onSaveTag: @onSaveTag }
       }
