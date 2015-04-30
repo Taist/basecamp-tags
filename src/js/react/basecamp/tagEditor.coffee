@@ -11,16 +11,24 @@ TagEditor = React.createFactory React.createClass
     @setState isEditorActive: true
 
   onKeyDown: (event) ->
-    switch event.key
-      when 'Enter' then @onSave()
-      when 'Escape' then @onCancel()
+    console.log 'onKeyDown', event
+    action = null
 
-  onSave: ->
+    switch event.keyCode
+      when 13 then action = @onSave
+      when 27 then action = @onCancel
+
+    if action
+      event.preventDefault()
+      event.stopPropagation()
+      action()
+
+  onSave: () ->
     name = @refs.tagName.getDOMNode().value
     @props.onSaveTag? { name }
     @setState isEditorActive: false
 
-  onCancel: ->
+  onCancel: () ->
     @setState isEditorActive: false
 
   render: ->
@@ -34,6 +42,7 @@ TagEditor = React.createFactory React.createClass
     if @state.isEditorActive
       div {},
         input {
+          onKeyDown: @onKeyDown
           placeholder: 'Tag name'
           ref: 'tagName'
           type: 'text'

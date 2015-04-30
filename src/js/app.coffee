@@ -15,7 +15,7 @@ app =
 
   observer: null
 
-  # todoContainers: {}
+  todoContainers: {}
 
   init: (api) ->
     app.api = api
