@@ -50,13 +50,23 @@ app =
       console.log 'onAssignTag', todoId, tagId
       app.helpers.getTags todoId
       .then (tags) ->
-        console.log tags
         if tags.indexOf(tagId) < 0
           tags.push tagId
           app.helpers.setTags todoId, tags
           .then ->
             tags
         else
+          tags
+      .catch (error) ->
+        console.log error
+
+    onDeleteTag: (todoId, tagId) ->
+      console.log 'onDeleteTag', todoId, tagId
+      app.helpers.getTags todoId
+      .then (tags) ->
+        tags = tags.filter (tag) -> tag isnt tagId
+        app.helpers.setTags todoId, tags
+        .then ->
           tags
       .catch (error) ->
         console.log error
@@ -68,7 +78,6 @@ app =
         tags ? []
 
     setTags: (todoId, tags) ->
-      console.log 'setTags', todoId, tags
       app.exapi.setPartOfCompanyData 'todosTags', todoId, tags
 
     loadAllTags: ->

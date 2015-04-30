@@ -17,6 +17,7 @@ updateTodo = (todoId) ->
 
       onSaveTag: app.actions.onSaveTag
       onAssignTag: app.actions.onAssignTag
+      onDeleteTag: app.actions.onDeleteTag
       getAllTags: app.helpers.getAllTags
 
       activeTags: tagsList

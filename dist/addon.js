@@ -49,7 +49,6 @@ app = {
     onAssignTag: function(todoId, tagId) {
       console.log('onAssignTag', todoId, tagId);
       return app.helpers.getTags(todoId).then(function(tags) {
-        console.log(tags);
         if (tags.indexOf(tagId) < 0) {
           tags.push(tagId);
           return app.helpers.setTags(todoId, tags).then(function() {
@@ -58,6 +57,19 @@ app = {
         } else {
           return tags;
         }
+      })["catch"](function(error) {
+        return console.log(error);
+      });
+    },
+    onDeleteTag: function(todoId, tagId) {
+      console.log('onDeleteTag', todoId, tagId);
+      return app.helpers.getTags(todoId).then(function(tags) {
+        tags = tags.filter(function(tag) {
+          return tag !== tagId;
+        });
+        return app.helpers.setTags(todoId, tags).then(function() {
+          return tags;
+        });
       })["catch"](function(error) {
         return console.log(error);
       });
@@ -70,7 +82,6 @@ app = {
       });
     },
     setTags: function(todoId, tags) {
-      console.log('setTags', todoId, tags);
       return app.exapi.setPartOfCompanyData('todosTags', todoId, tags);
     },
     loadAllTags: function() {
@@ -117,6 +128,7 @@ updateTodo = function(todoId) {
       dataBehavior: 'expandable expand_exclusively',
       onSaveTag: app.actions.onSaveTag,
       onAssignTag: app.actions.onAssignTag,
+      onDeleteTag: app.actions.onDeleteTag,
       getAllTags: app.helpers.getAllTags,
       activeTags: tagsList,
       onPopupClose: function() {
@@ -553,17 +565,15 @@ TagsButton = React.createFactory(React.createClass({
     })(this));
   },
   onClickByTag: function(tagId, isActiveNow) {
-    if (isActiveNow) {
-      return console.log(tagId, isActiveNow);
-    } else {
-      return this.props.onAssignTag(this.props.todoId, tagId).then((function(_this) {
-        return function(tagsList) {
-          return _this.setState({
-            activeTags: tagsList
-          });
-        };
-      })(this));
-    }
+    var method;
+    method = isActiveNow ? 'onDeleteTag' : 'onAssignTag';
+    return this.props[method](this.props.todoId, tagId).then((function(_this) {
+      return function(tagsList) {
+        return _this.setState({
+          activeTags: tagsList
+        });
+      };
+    })(this));
   },
   render: function() {
     return span({

@@ -73,12 +73,11 @@ TagsButton = React.createFactory React.createClass
       @setState activeTags: tagsList
 
   onClickByTag: (tagId, isActiveNow) ->
-    if isActiveNow
-      console.log tagId, isActiveNow
-    else
-      @props.onAssignTag @props.todoId, tagId
-      .then (tagsList) =>
-        @setState activeTags: tagsList
+    method = if isActiveNow then 'onDeleteTag' else 'onAssignTag'
+
+    @props[method] @props.todoId, tagId
+    .then (tagsList) =>
+      @setState activeTags: tagsList
 
   render: ->
 
