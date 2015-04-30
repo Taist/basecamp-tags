@@ -17,6 +17,7 @@ TagsButton = React.createFactory React.createClass
     tagsIndex: {}
     isPopupVisible: false
     activeTags: null
+    editedTag: null
 
   updateTagsList: () ->
     if @props.getAllTags?
@@ -79,6 +80,9 @@ TagsButton = React.createFactory React.createClass
     .then (tagsList) =>
       @setState activeTags: tagsList
 
+  onTagEdit: (tag) ->
+    @setState editedTag: tag
+
   render: ->
 
     span {
@@ -105,8 +109,9 @@ TagsButton = React.createFactory React.createClass
           tagsIndex: @state.tagsIndex
           activeTags: @state.activeTags
           onClick: @onClickByTag
+          onTagEdit: @onTagEdit
         }
-        footer: TagEditor { onSaveTag: @onSaveTag }
+        footer: TagEditor { onSaveTag: @onSaveTag, editedTag: @state.editedTag }
       }
 
 module.exports = TagsButton

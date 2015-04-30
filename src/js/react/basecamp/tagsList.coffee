@@ -14,7 +14,7 @@ TagsList = React.createFactory React.createClass
             isInactive = @props.activeTags?
             isInactive = false if @props.activeTags?.indexOf(tagId) > -1
             onClick = @props.onClick if typeof @props.onClick is 'function'
-            Tag extend {}, @props.tagsIndex[tagId], { isInactive, onClick }
+            Tag extend { tag: @props.tagsIndex[tagId] }, { isInactive, onClick, onEdit: @props.onTagEdit }
           else
             null
     else

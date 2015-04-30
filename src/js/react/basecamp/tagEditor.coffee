@@ -30,6 +30,9 @@ TagEditor = React.createFactory React.createClass
   onCancel: () ->
     @setState isEditorActive: false
 
+  componentWillReceiveProps: (nextProps) ->
+    console.log nextProps
+
   render: ->
     actionProps =
       href: 'javascript:void(0)'

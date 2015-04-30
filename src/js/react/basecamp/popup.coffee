@@ -12,6 +12,6 @@ BasecampPopup = React.createFactory React.createClass
       label {},
         b {}, @props.header
       div { style: marginTop: 12, marginBottom: 12 }, @props.content
-      footer {}, @props.footer
+      footer { style: textAlign: 'center' }, @props.footer
 
 module.exports = BasecampPopup
