@@ -1,5 +1,9 @@
+defaultConfig =
+  subtree: true
+  childList: true
+
 class DOMObserver
-  bodyObserver: null
+  mutationObserver: null
   isActive: no
   observers: {}
 
@@ -13,8 +17,9 @@ class DOMObserver
         @processedOnce.push elem
         observer.action elem
 
-  constructor: ->
-    @bodyObserver = new MutationObserver (mutations) =>
+  constructor: (props) ->
+    @config = props?.observerConfig ? defaultConfig
+    @mutationObserver = new MutationObserver (mutations) =>
       mutations.forEach (mutation) =>
         for selector, observer of @observers
           @checkForAction selector, observer, mutation.target
@@ -23,12 +28,7 @@ class DOMObserver
     unless @isActive
       @isActive = yes
       target = document.querySelector 'body'
-
-      config =
-        subtree: true
-        childList: true
-
-      @bodyObserver.observe target, config
+      @mutationObserver.observe target, @config
 
   waitElement: (selector, action) ->
     @activateMainObserver()

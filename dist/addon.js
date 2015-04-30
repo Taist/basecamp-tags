@@ -16,7 +16,6 @@ appData.tagsIndex = {};
 app = {
   api: null,
   exapi: {},
-  observer: null,
   todoContainers: {},
   init: function(api) {
     app.api = api;
@@ -146,10 +145,15 @@ updateTodo = function(todoId) {
 module.exports = updateTodo;
 
 },{"../app":1,"../react/basecamp/tagsButton":10,"../react/basecamp/tagsList":11,"react":168}],3:[function(require,module,exports){
-var DOMObserver;
+var DOMObserver, defaultConfig;
+
+defaultConfig = {
+  subtree: true,
+  childList: true
+};
 
 DOMObserver = (function() {
-  DOMObserver.prototype.bodyObserver = null;
+  DOMObserver.prototype.mutationObserver = null;
 
   DOMObserver.prototype.isActive = false;
 
@@ -171,15 +175,17 @@ DOMObserver = (function() {
     })(this));
   };
 
-  function DOMObserver() {
-    this.bodyObserver = new MutationObserver((function(_this) {
+  function DOMObserver(props) {
+    var ref;
+    this.config = (ref = props != null ? props.observerConfig : void 0) != null ? ref : defaultConfig;
+    this.mutationObserver = new MutationObserver((function(_this) {
       return function(mutations) {
         return mutations.forEach(function(mutation) {
-          var observer, ref, results, selector;
-          ref = _this.observers;
+          var observer, ref1, results, selector;
+          ref1 = _this.observers;
           results = [];
-          for (selector in ref) {
-            observer = ref[selector];
+          for (selector in ref1) {
+            observer = ref1[selector];
             results.push(_this.checkForAction(selector, observer, mutation.target));
           }
           return results;
@@ -189,15 +195,11 @@ DOMObserver = (function() {
   }
 
   DOMObserver.prototype.activateMainObserver = function() {
-    var config, target;
+    var target;
     if (!this.isActive) {
       this.isActive = true;
       target = document.querySelector('body');
-      config = {
-        subtree: true,
-        childList: true
-      };
-      return this.bodyObserver.observe(target, config);
+      return this.mutationObserver.observe(target, this.config);
     }
   };
 
@@ -451,9 +453,24 @@ TagsButton = React.createFactory(React.createClass({
     }
   },
   componentDidMount: function() {
-    return this.updateTagsList();
+    var mutationObserver, target;
+    this.updateTagsList();
+    target = this.refs.tagsButton.getDOMNode();
+    mutationObserver = new MutationObserver((function(_this) {
+      return function(mutations) {
+        if (target.style.visibility === 'hidden') {
+          console.log('mutation');
+          if (target.parentNode.parentNode.querySelector('.expanded')) {
+            target.style.visibility = 'visible';
+            return target.className += ' showing';
+          }
+        }
+      };
+    })(this));
+    return mutationObserver.observe(target, {
+      attributes: true
+    });
   },
-  componentWillUnmount: function() {},
   componentWillReceiveProps: function(nextProps) {
     return this.updateTagsList();
   },
@@ -508,9 +525,9 @@ TagsButton = React.createFactory(React.createClass({
   },
   render: function() {
     return span({
+      ref: 'tagsButton',
       style: Styles.get('dummy', {
-        visibility: 'hidden',
-        marginLeft: 4
+        visibility: 'hidden'
       }, this.props.styles),
       className: 'pill blank has_balloon exclusively_expanded',
       'data-behavior': this.props.dataBehavior,
@@ -22237,25 +22254,29 @@ addonEntry = {
     window._app = app;
     app.init(_taistApi);
     DOMObserver = require('./helpers/domObserver');
-    app.observer = new DOMObserver();
+    app.elementObserver = new DOMObserver();
     return app.helpers.loadAllTags().then(function() {
-      return app.observer.waitElement('li.todo.show', function(todoElem) {
-        var container, id, listPrevElem, tagName, tagsButton;
+      return app.elementObserver.waitElement('li.todo.show', function(todoElem) {
+        var container, id, nextElem, parent, tagsButton;
         if (!todoElem.querySelector('.taist')) {
           id = todoElem.id;
           tagsButton = document.createElement('span');
-          if (location.href.match(/todos\/\d+/i)) {
-            tagName = 'div';
-            listPrevElem = '.wrapper';
-          } else {
-            tagName = 'span';
-            listPrevElem = '.content';
-          }
-          container = document.createElement(tagName);
-          container.className = 'taist';
-          insertAfter(container, todoElem.querySelector(listPrevElem));
           tagsButton.style.position = 'relative';
-          insertAfter(tagsButton, todoElem.querySelector('form.edit_todo span'));
+          if (location.href.match(/todos\/\d+/i)) {
+            container = document.createElement('div');
+            container.className = 'taist';
+            insertAfter(container, todoElem.querySelector('.wrapper'));
+            insertAfter(tagsButton, todoElem.querySelector('form.edit_todo span'));
+          } else {
+            container = document.createElement('span');
+            container.className = 'taist';
+            nextElem = todoElem.querySelector('form.edit_todo span');
+            if (nextElem) {
+              parent = nextElem.parentNode;
+              parent.insertBefore(container, nextElem);
+              parent.insertBefore(tagsButton, nextElem);
+            }
+          }
           app.todoContainers[id] = {
             list: container,
             button: tagsButton

@@ -13,8 +13,6 @@ app =
   api: null
   exapi: {}
 
-  observer: null
-
   todoContainers: {}
 
   init: (api) ->

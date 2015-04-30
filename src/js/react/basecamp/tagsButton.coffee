@@ -24,7 +24,15 @@ TagsButton = React.createFactory React.createClass
   componentDidMount: ->
     @updateTagsList()
 
-  componentWillUnmount: ->
+    target = @refs.tagsButton.getDOMNode()
+    mutationObserver = new MutationObserver (mutations) =>
+      if target.style.visibility is 'hidden'
+        console.log 'mutation'
+        if target.parentNode.parentNode.querySelector '.expanded'
+          target.style.visibility = 'visible'
+          target.className += ' showing'
+
+    mutationObserver.observe target, { attributes: true }
 
   componentWillReceiveProps: (nextProps) ->
     @updateTagsList()
@@ -66,30 +74,31 @@ TagsButton = React.createFactory React.createClass
 
   render: ->
     span {
-        style: Styles.get 'dummy', {
-          visibility: 'hidden'
-          marginLeft: 4
-        }, @props.styles
-        className: 'pill blank has_balloon exclusively_expanded'
-        'data-behavior': @props.dataBehavior
-        'data-hovercontent-strategy': 'visibility'
-        # onMouseEnter: @preventDefault
-        # onMouseLeave: @preventDefault
-        # onMouseOver: @preventDefault
-        # onMouseOut: @preventDefault
-        # onMouseMove: @preventDefault
+      ref: 'tagsButton'
+      style: Styles.get 'dummy', {
+        visibility: 'hidden'
+        # marginLeft: 4
+      }, @props.styles
+      className: 'pill blank has_balloon exclusively_expanded'
+      'data-behavior': @props.dataBehavior
+      'data-hovercontent-strategy': 'visibility'
+      # onMouseEnter: @preventDefault
+      # onMouseLeave: @preventDefault
+      # onMouseOver: @preventDefault
+      # onMouseOut: @preventDefault
+      # onMouseMove: @preventDefault
+    },
+      a {
+        href: '#'
+        'data-behavior': 'expand_on_click'
+        onClick: @onPopupOpen
       },
-        a {
-          href: '#'
-          'data-behavior': 'expand_on_click'
-          onClick: @onPopupOpen
-        },
-          span {}, 'Tags'
+        span {}, 'Tags'
 
-        BasecampPopup {
-          header: 'Assign tags on this to-do'
-          content: TagsList { tagsList: @state.tagsList, tagsIndex: @state.tagsIndex }
-          footer: TagEditor { onSaveTag: @onSaveTag }
-        }
+      BasecampPopup {
+        header: 'Assign tags on this to-do'
+        content: TagsList { tagsList: @state.tagsList, tagsIndex: @state.tagsIndex }
+        footer: TagEditor { onSaveTag: @onSaveTag }
+      }
 
 module.exports = TagsButton

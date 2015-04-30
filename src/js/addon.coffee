@@ -8,30 +8,37 @@ addonEntry =
     app.init _taistApi
 
     DOMObserver = require './helpers/domObserver'
-    app.observer = new DOMObserver()
+    app.elementObserver = new DOMObserver()
 
     app.helpers.loadAllTags()
     .then () ->
 
-      app.observer.waitElement 'li.todo.show', (todoElem) ->
+      app.elementObserver.waitElement 'li.todo.show', (todoElem) ->
         unless todoElem.querySelector '.taist'
           id = todoElem.id
 
           tagsButton = document.createElement 'span'
+          tagsButton.style.position = 'relative'
 
           if location.href.match /todos\/\d+/i
-            tagName = 'div'
-            listPrevElem = '.wrapper'
+            container = document.createElement 'div'
+            container.className = 'taist'
+
+            insertAfter container, todoElem.querySelector '.wrapper'
+
+            insertAfter tagsButton, todoElem.querySelector 'form.edit_todo span'
+
           else
-            tagName = 'span'
-            listPrevElem = '.content'
+            container = document.createElement 'span'
+            container.className = 'taist'
 
-          container = document.createElement tagName
-          container.className = 'taist'
-          insertAfter container, todoElem.querySelector listPrevElem
+            nextElem = todoElem.querySelector 'form.edit_todo span'
+            if nextElem
+              parent = nextElem.parentNode
 
-          tagsButton.style.position = 'relative'
-          insertAfter tagsButton, todoElem.querySelector('form.edit_todo span')
+              parent.insertBefore container, nextElem
+
+              parent.insertBefore tagsButton, nextElem
 
           app.todoContainers[id] = { list: container, button: tagsButton }
 
