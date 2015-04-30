@@ -11,7 +11,6 @@ TagEditor = React.createFactory React.createClass
     @setState isEditorActive: true
 
   onKeyDown: (event) ->
-    console.log 'onKeyDown', event
     action = null
 
     switch event.keyCode

@@ -33,7 +33,10 @@ updateTodo = (todoId) ->
           updateTodo todoId
       }
 
-    React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
+      React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
+
+    else
+      React.render React.DOM.span(), app.todoContainers[todoId].button
 
   .catch (error) ->
     console.log error

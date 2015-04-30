@@ -19,6 +19,7 @@ addonEntry =
 
           tagsButton = document.createElement 'span'
           tagsButton.style.position = 'relative'
+          tagsButton.className = 'taist'
 
           if location.href.match /todos\/\d+/i
             container = document.createElement 'div'

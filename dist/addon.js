@@ -135,8 +135,10 @@ updateTodo = function(todoId) {
           return updateTodo(todoId);
         }
       };
+      return React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
+    } else {
+      return React.render(React.DOM.span(), app.todoContainers[todoId].button);
     }
-    return React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
   })["catch"](function(error) {
     return console.log(error);
   });
@@ -348,7 +350,6 @@ TagEditor = React.createFactory(React.createClass({
   },
   onKeyDown: function(event) {
     var action;
-    console.log('onKeyDown', event);
     action = null;
     switch (event.keyCode) {
       case 13:
@@ -459,8 +460,7 @@ TagsButton = React.createFactory(React.createClass({
     mutationObserver = new MutationObserver((function(_this) {
       return function(mutations) {
         if (target.style.visibility === 'hidden') {
-          console.log('mutation');
-          if (target.parentNode.parentNode.querySelector('.expanded')) {
+          if (target.parentNode.parentNode.querySelector(':not(.taist) .expanded')) {
             target.style.visibility = 'visible';
             return target.className += ' showing';
           }
@@ -480,9 +480,7 @@ TagsButton = React.createFactory(React.createClass({
   },
   onClickOutside: function(event) {
     var ref1;
-    console.log('outside click ?', dataAttrName);
     if (((ref1 = event.target.dataset[dataAttrName]) != null ? ref1.indexOf(this.getDOMNode().dataset[dataAttrName]) : void 0) !== 0) {
-      console.log('outside click !!!');
       return this.onPopupClose();
     }
   },
@@ -496,7 +494,6 @@ TagsButton = React.createFactory(React.createClass({
       isPopupVisible: true
     }, (function(_this) {
       return function() {
-        console.log('on popup open');
         _this.updateTagsList();
         document.addEventListener('keydown', _this.onKeyDown);
         return document.addEventListener('click', _this.onClickOutside);
@@ -508,7 +505,6 @@ TagsButton = React.createFactory(React.createClass({
       isPopupVisible: false
     }, (function(_this) {
       return function() {
-        console.log('on popup close');
         document.removeEventListener('keydown', _this.onKeyDown);
         document.removeEventListener('click', _this.onClickOutside);
         return _this.props.onPopupClose();
@@ -527,7 +523,8 @@ TagsButton = React.createFactory(React.createClass({
     return span({
       ref: 'tagsButton',
       style: Styles.get('dummy', {
-        visibility: 'hidden'
+        visibility: 'hidden',
+        marginLeft: 0
       }, this.props.styles),
       className: 'pill blank has_balloon exclusively_expanded',
       'data-behavior': this.props.dataBehavior,
@@ -537,7 +534,7 @@ TagsButton = React.createFactory(React.createClass({
       'data-behavior': 'expand_on_click',
       onClick: this.onPopupOpen
     }, span({}, 'Tags')), BasecampPopup({
-      header: 'Assign tags on this to-do',
+      header: 'Assign tags to this to-do',
       content: TagsList({
         tagsList: this.state.tagsList,
         tagsIndex: this.state.tagsIndex
@@ -22262,6 +22259,7 @@ addonEntry = {
           id = todoElem.id;
           tagsButton = document.createElement('span');
           tagsButton.style.position = 'relative';
+          tagsButton.className = 'taist';
           if (location.href.match(/todos\/\d+/i)) {
             container = document.createElement('div');
             container.className = 'taist';

@@ -25,10 +25,10 @@ TagsButton = React.createFactory React.createClass
     @updateTagsList()
 
     target = @refs.tagsButton.getDOMNode()
+
     mutationObserver = new MutationObserver (mutations) =>
       if target.style.visibility is 'hidden'
-        console.log 'mutation'
-        if target.parentNode.parentNode.querySelector '.expanded'
+        if target.parentNode.parentNode.querySelector ':not(.taist) .expanded'
           target.style.visibility = 'visible'
           target.className += ' showing'
 
@@ -42,10 +42,8 @@ TagsButton = React.createFactory React.createClass
     event.stopPropagation()
 
   onClickOutside: (event) ->
-    console.log 'outside click ?', dataAttrName
     if event.target.dataset[dataAttrName]?.indexOf(@.getDOMNode().dataset[dataAttrName]) isnt 0
       # target is not a child of the component
-      console.log 'outside click !!!'
       @onPopupClose()
 
   onKeyDown: (event) ->
@@ -54,14 +52,12 @@ TagsButton = React.createFactory React.createClass
 
   onPopupOpen: ->
     @setState isPopupVisible: true, =>
-      console.log 'on popup open'
       @updateTagsList()
       document.addEventListener 'keydown', @onKeyDown
       document.addEventListener 'click', @onClickOutside
 
   onPopupClose: ->
     @setState isPopupVisible: false, =>
-      console.log 'on popup close'
       document.removeEventListener 'keydown', @onKeyDown
       document.removeEventListener 'click', @onClickOutside
       @props.onPopupClose()
@@ -73,11 +69,12 @@ TagsButton = React.createFactory React.createClass
       @props.onAssignTag @props.todoId, tag.id
 
   render: ->
+
     span {
       ref: 'tagsButton'
       style: Styles.get 'dummy', {
         visibility: 'hidden'
-        # marginLeft: 4
+        marginLeft: 0
       }, @props.styles
       className: 'pill blank has_balloon exclusively_expanded'
       'data-behavior': @props.dataBehavior
@@ -96,7 +93,7 @@ TagsButton = React.createFactory React.createClass
         span {}, 'Tags'
 
       BasecampPopup {
-        header: 'Assign tags on this to-do'
+        header: 'Assign tags to this to-do'
         content: TagsList { tagsList: @state.tagsList, tagsIndex: @state.tagsIndex }
         footer: TagEditor { onSaveTag: @onSaveTag }
       }
