@@ -1,5 +1,5 @@
 function init(){var require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Q, app, appData, extend, generateGUID;
+var Q, app, appData, extend, generateGUID, tagColors;
 
 Q = require('q');
 
@@ -12,6 +12,8 @@ generateGUID = require('./helpers/generateGUID');
 appData = {};
 
 appData.tagsIndex = {};
+
+tagColors = "#fc9,#c9c,#9cf,#cfc,#cf9,#9cc,#c9f,#fcc,#f9c,#cc9,#9fc,#ccf".split(',');
 
 app = {
   api: null,
@@ -40,6 +42,7 @@ app = {
     onSaveTag: function(tag) {
       if (!tag.id) {
         tag.id = generateGUID();
+        tag.color = tagColors[Date.now() % tagColors.length];
       }
       return app.exapi.setPartOfCompanyData('tagsIndex', tag.id, tag).then(function() {
         appData.tagsIndex[tag.id] = tag;
@@ -346,14 +349,16 @@ Tag = React.createFactory(React.createClass({
     return typeof (base = this.props).onClick === "function" ? base.onClick(this.props.id, !this.props.isInactive) : void 0;
   },
   render: function() {
-    var opacity;
+    var background, opacity, ref;
     opacity = this.props.isInactive ? 0.4 : 1;
+    background = (ref = this.props.color) != null ? ref : '#e2e9f8';
     return span({
       key: this.props.id,
       style: Styles.get('tag', {
         marginRight: 4,
         marginBottom: 2,
-        opacity: opacity
+        opacity: opacity,
+        background: background
       }),
       onClick: this.onClick
     }, this.props.name);
