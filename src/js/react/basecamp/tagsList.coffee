@@ -1,4 +1,5 @@
 React = require 'react'
+extend = require 'react/lib/Object.assign'
 
 { div } = React.DOM
 
@@ -10,7 +11,9 @@ TagsList = React.createFactory React.createClass
       div { style: display: 'inline-block', marginRight: -4 },
         @props.tagsList.map (tagId) =>
           if @props.tagsIndex?[tagId]?
-            Tag @props.tagsIndex[tagId]
+            isInactive = @props.activeTags?
+            isInactive = false if @props.activeTags?.indexOf(tagId) > -1
+            Tag extend {}, @props.tagsIndex[tagId], { isInactive }
           else
             null
     else

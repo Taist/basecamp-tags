@@ -1,4 +1,5 @@
 React = require 'react'
+extend = require 'react/lib/Object.assign'
 
 { span, a, div } = React.DOM
 
@@ -15,11 +16,12 @@ TagsButton = React.createFactory React.createClass
     tagsList: []
     tagsIndex: {}
     isPopupVisible: false
+    activeTags: null
 
   updateTagsList: () ->
     if @props.getAllTags?
       allTags = @props.getAllTags()
-      @setState allTags
+      @setState extend {}, allTags, activeTags: @props.activeTags
 
   componentDidMount: ->
     @updateTagsList()
@@ -67,6 +69,8 @@ TagsButton = React.createFactory React.createClass
     .then =>
       @updateTagsList()
       @props.onAssignTag @props.todoId, tag.id
+    .then (tagsList) =>
+      @setState activeTags: tagsList
 
   render: ->
 
@@ -89,7 +93,11 @@ TagsButton = React.createFactory React.createClass
 
       BasecampPopup {
         header: 'Assign tags to this to-do'
-        content: TagsList { tagsList: @state.tagsList, tagsIndex: @state.tagsIndex }
+        content: TagsList {
+          tagsList: @state.tagsList
+          tagsIndex: @state.tagsIndex
+          activeTags: @state.activeTags
+        }
         footer: TagEditor { onSaveTag: @onSaveTag }
       }
 

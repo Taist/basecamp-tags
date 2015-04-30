@@ -118,6 +118,7 @@ updateTodo = function(todoId) {
       onSaveTag: app.actions.onSaveTag,
       onAssignTag: app.actions.onAssignTag,
       getAllTags: app.helpers.getAllTags,
+      activeTags: tagsList,
       onPopupClose: function() {
         return updateTodo(todoId);
       }
@@ -149,7 +150,8 @@ updateTodo = function(todoId) {
         tagsList: tagsList,
         tagsIndex: tagsIndex
       });
-      return React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].list);
+      React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].list);
+      return React.render(span(), app.todoContainers[todoId].button);
     }
   })["catch"](function(error) {
     return console.log(error);
@@ -328,11 +330,14 @@ Styles = require('./styles');
 
 Tag = React.createFactory(React.createClass({
   render: function() {
+    var opacity;
+    opacity = this.props.isInactive ? 0.4 : 1;
     return span({
       key: this.props.id,
       style: Styles.get('tag', {
         marginRight: 4,
-        marginBottom: 2
+        marginBottom: 2,
+        opacity: opacity
       })
     }, this.props.name);
   }
@@ -430,9 +435,11 @@ TagEditor = React.createFactory(React.createClass({
 module.exports = TagEditor;
 
 },{"react":168,"react/lib/Object.assign":39}],10:[function(require,module,exports){
-var BasecampPopup, React, Styles, TagEditor, TagsButton, TagsList, a, attrName, dataAttrName, div, ref, span;
+var BasecampPopup, React, Styles, TagEditor, TagsButton, TagsList, a, attrName, dataAttrName, div, extend, ref, span;
 
 React = require('react');
+
+extend = require('react/lib/Object.assign');
 
 ref = React.DOM, span = ref.span, a = ref.a, div = ref.div;
 
@@ -455,14 +462,17 @@ TagsButton = React.createFactory(React.createClass({
     return {
       tagsList: [],
       tagsIndex: {},
-      isPopupVisible: false
+      isPopupVisible: false,
+      activeTags: null
     };
   },
   updateTagsList: function() {
     var allTags;
     if (this.props.getAllTags != null) {
       allTags = this.props.getAllTags();
-      return this.setState(allTags);
+      return this.setState(extend({}, allTags, {
+        activeTags: this.props.activeTags
+      }));
     }
   },
   componentDidMount: function() {
@@ -529,6 +539,12 @@ TagsButton = React.createFactory(React.createClass({
         _this.updateTagsList();
         return _this.props.onAssignTag(_this.props.todoId, tag.id);
       };
+    })(this)).then((function(_this) {
+      return function(tagsList) {
+        return _this.setState({
+          activeTags: tagsList
+        });
+      };
     })(this));
   },
   render: function() {
@@ -549,7 +565,8 @@ TagsButton = React.createFactory(React.createClass({
       header: 'Assign tags to this to-do',
       content: TagsList({
         tagsList: this.state.tagsList,
-        tagsIndex: this.state.tagsIndex
+        tagsIndex: this.state.tagsIndex,
+        activeTags: this.state.activeTags
       }),
       footer: TagEditor({
         onSaveTag: this.onSaveTag
@@ -560,10 +577,12 @@ TagsButton = React.createFactory(React.createClass({
 
 module.exports = TagsButton;
 
-},{"./popup":6,"./styles":7,"./tagEditor":9,"./tagsList":11,"react":168,"react/lib/DOMProperty":22}],11:[function(require,module,exports){
-var React, Tag, TagsList, div;
+},{"./popup":6,"./styles":7,"./tagEditor":9,"./tagsList":11,"react":168,"react/lib/DOMProperty":22,"react/lib/Object.assign":39}],11:[function(require,module,exports){
+var React, Tag, TagsList, div, extend;
 
 React = require('react');
+
+extend = require('react/lib/Object.assign');
 
 div = React.DOM.div;
 
@@ -580,9 +599,15 @@ TagsList = React.createFactory(React.createClass({
         }
       }, this.props.tagsList.map((function(_this) {
         return function(tagId) {
-          var ref1;
+          var isInactive, ref1, ref2;
           if (((ref1 = _this.props.tagsIndex) != null ? ref1[tagId] : void 0) != null) {
-            return Tag(_this.props.tagsIndex[tagId]);
+            isInactive = _this.props.activeTags != null;
+            if (((ref2 = _this.props.activeTags) != null ? ref2.indexOf(tagId) : void 0) > -1) {
+              isInactive = false;
+            }
+            return Tag(extend({}, _this.props.tagsIndex[tagId], {
+              isInactive: isInactive
+            }));
           } else {
             return null;
           }
@@ -596,7 +621,7 @@ TagsList = React.createFactory(React.createClass({
 
 module.exports = TagsList;
 
-},{"./tag":8,"react":168}],12:[function(require,module,exports){
+},{"./tag":8,"react":168,"react/lib/Object.assign":39}],12:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

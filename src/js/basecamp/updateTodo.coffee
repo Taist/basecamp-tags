@@ -19,6 +19,8 @@ updateTodo = (todoId) ->
       onAssignTag: app.actions.onAssignTag
       getAllTags: app.helpers.getAllTags
 
+      activeTags: tagsList
+
       onPopupClose: ->
         updateTodo todoId
     }
@@ -41,6 +43,7 @@ updateTodo = (todoId) ->
       buttonData.content = tagsListComponent { tagsList, tagsIndex }
 
       React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].list
+      React.render span(), app.todoContainers[todoId].button
 
   .catch (error) ->
     console.log error
