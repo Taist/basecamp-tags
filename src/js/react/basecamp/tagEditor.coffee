@@ -3,9 +3,12 @@ extend = require 'react/lib/Object.assign'
 
 { div, a, input, button, span } = React.DOM
 
+ColorPicker = require './colorPicker'
+
 TagEditor = React.createFactory React.createClass
   getInitialState: ->
     editedTag: null
+    selectedColor: null
     isEditorActive: false
 
   onActivateEditor: ->
@@ -23,15 +26,18 @@ TagEditor = React.createFactory React.createClass
       event.stopPropagation()
       action()
 
-  onSave: () ->
+  onSave: ->
     id = @state.editedTag?.id
-    color = @state.editedTag?.color
+    color = @state.selectedColor ? @state.editedTag?.color
     name = @refs.tagName.getDOMNode().value
     @props.onSaveTag? { id, name, color }
-    @setState isEditorActive: false
+    @setState isEditorActive: false, selectedColor: null
 
-  onCancel: () ->
-    @setState isEditorActive: false
+  onCancel: ->
+    @setState isEditorActive: false, selectedColor: null
+
+  onSelectColor: (color) ->
+    @setState selectedColor: color
 
   componentWillReceiveProps: (nextProps) ->
     if nextProps.editedTag
@@ -61,6 +67,10 @@ TagEditor = React.createFactory React.createClass
         }
         a extend({}, actionProps, onClick: @onSave), 'OK'
         a extend({}, actionProps, onClick: @onCancel), 'Cancel'
+        ColorPicker {
+          activeColor: @state.selectedColor ? @state.editedTag?.color
+          onSelectColor: @onSelectColor
+        }
     else
       a {
         href: 'javascript:void(0)'

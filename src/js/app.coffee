@@ -9,8 +9,6 @@ appData = {}
 
 appData.tagsIndex = {}
 
-tagColors = "#fc9,#c9c,#9cf,#cfc,#cf9,#9cc,#c9f,#fcc,#f9c,#cc9,#9fc,#ccf".split(',')
-
 app =
   api: null
   exapi: {}
@@ -43,7 +41,6 @@ app =
       console.log 'onSaveTag', tag
       unless tag.id
         tag.id = generateGUID()
-        tag.color = tagColors[Date.now()%tagColors.length]
 
       app.exapi.setPartOfCompanyData 'tagsIndex', tag.id, tag
       .then ->
