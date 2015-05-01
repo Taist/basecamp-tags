@@ -40,6 +40,7 @@ app = {
   },
   actions: {
     onSaveTag: function(tag) {
+      console.log('onSaveTag', tag);
       if (!tag.id) {
         tag.id = generateGUID();
         tag.color = tagColors[Date.now() % tagColors.length];
@@ -409,6 +410,7 @@ ref = React.DOM, div = ref.div, a = ref.a, input = ref.input, button = ref.butto
 TagEditor = React.createFactory(React.createClass({
   getInitialState: function() {
     return {
+      editedTag: null,
       isEditorActive: false
     };
   },
@@ -434,11 +436,15 @@ TagEditor = React.createFactory(React.createClass({
     }
   },
   onSave: function() {
-    var base, name;
+    var base, color, id, name, ref1, ref2;
+    id = (ref1 = this.state.editedTag) != null ? ref1.id : void 0;
+    color = (ref2 = this.state.editedTag) != null ? ref2.color : void 0;
     name = this.refs.tagName.getDOMNode().value;
     if (typeof (base = this.props).onSaveTag === "function") {
       base.onSaveTag({
-        name: name
+        id: id,
+        name: name,
+        color: color
       });
     }
     return this.setState({
@@ -451,7 +457,27 @@ TagEditor = React.createFactory(React.createClass({
     });
   },
   componentWillReceiveProps: function(nextProps) {
-    return console.log(nextProps);
+    if (nextProps.editedTag) {
+      return this.setState({
+        editedTag: nextProps.editedTag,
+        isEditorActive: true
+      }, (function(_this) {
+        return function() {
+          var ref1;
+          return (ref1 = _this.refs.tagName) != null ? ref1.getDOMNode().value = nextProps.editedTag.name : void 0;
+        };
+      })(this));
+    } else {
+      return this.setState({
+        editedTag: null,
+        isEditorActive: false
+      }, (function(_this) {
+        return function() {
+          var ref1;
+          return (ref1 = _this.refs.tagName) != null ? ref1.getDOMNode().value = '' : void 0;
+        };
+      })(this));
+    }
   },
   render: function() {
     var actionProps;
@@ -569,7 +595,8 @@ TagsButton = React.createFactory(React.createClass({
   },
   onPopupOpen: function() {
     return this.setState({
-      isPopupVisible: true
+      isPopupVisible: true,
+      editedTag: null
     }, (function(_this) {
       return function() {
         _this.updateTagsList();
@@ -590,15 +617,21 @@ TagsButton = React.createFactory(React.createClass({
     })(this));
   },
   onSaveTag: function(tag) {
+    var shouldBeAssigned;
+    shouldBeAssigned = tag.id == null;
     return this.props.onSaveTag(tag).then((function(_this) {
       return function() {
         _this.updateTagsList();
-        return _this.props.onAssignTag(_this.props.todoId, tag.id);
-      };
-    })(this)).then((function(_this) {
-      return function(tagsList) {
         return _this.setState({
-          activeTags: tagsList
+          editedTag: null
+        }, function() {
+          if (shouldBeAssigned) {
+            return _this.props.onAssignTag(_this.props.todoId, tag.id).then(function(tagsList) {
+              return _this.setState({
+                activeTags: tagsList
+              });
+            });
+          }
         });
       };
     })(this));

@@ -54,7 +54,7 @@ TagsButton = React.createFactory React.createClass
       @onPopupClose()
 
   onPopupOpen: ->
-    @setState isPopupVisible: true, =>
+    @setState { isPopupVisible: true, editedTag: null }, =>
       @updateTagsList()
       document.addEventListener 'keydown', @onKeyDown
       document.addEventListener 'click', @onClickOutside
@@ -66,12 +66,15 @@ TagsButton = React.createFactory React.createClass
       @props.onPopupClose()
 
   onSaveTag: (tag) ->
+    shouldBeAssigned = not tag.id?
     @props.onSaveTag tag
     .then =>
       @updateTagsList()
-      @props.onAssignTag @props.todoId, tag.id
-    .then (tagsList) =>
-      @setState activeTags: tagsList
+      @setState { editedTag: null }, =>
+        if shouldBeAssigned
+          @props.onAssignTag @props.todoId, tag.id
+          .then (tagsList) =>
+            @setState activeTags: tagsList          
 
   onClickByTag: (tagId, isActiveNow) ->
     method = if isActiveNow then 'onDeleteTag' else 'onAssignTag'

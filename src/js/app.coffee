@@ -40,6 +40,7 @@ app =
 
   actions:
     onSaveTag: (tag) ->
+      console.log 'onSaveTag', tag
       unless tag.id
         tag.id = generateGUID()
         tag.color = tagColors[Date.now()%tagColors.length]

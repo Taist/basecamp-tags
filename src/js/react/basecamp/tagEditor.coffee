@@ -5,6 +5,7 @@ extend = require 'react/lib/Object.assign'
 
 TagEditor = React.createFactory React.createClass
   getInitialState: ->
+    editedTag: null
     isEditorActive: false
 
   onActivateEditor: ->
@@ -23,15 +24,22 @@ TagEditor = React.createFactory React.createClass
       action()
 
   onSave: () ->
+    id = @state.editedTag?.id
+    color = @state.editedTag?.color
     name = @refs.tagName.getDOMNode().value
-    @props.onSaveTag? { name }
+    @props.onSaveTag? { id, name, color }
     @setState isEditorActive: false
 
   onCancel: () ->
     @setState isEditorActive: false
 
   componentWillReceiveProps: (nextProps) ->
-    console.log nextProps
+    if nextProps.editedTag
+      @setState { editedTag: nextProps.editedTag, isEditorActive: true }, =>
+        @refs.tagName?.getDOMNode().value = nextProps.editedTag.name
+    else
+      @setState { editedTag: null, isEditorActive: false }, =>
+        @refs.tagName?.getDOMNode().value = ''
 
   render: ->
     actionProps =
