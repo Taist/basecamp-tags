@@ -621,15 +621,22 @@ TagsButton = React.createFactory(React.createClass({
     shouldBeAssigned = tag.id == null;
     return this.props.onSaveTag(tag).then((function(_this) {
       return function() {
-        _this.updateTagsList();
         return _this.setState({
           editedTag: null
         }, function() {
+          var activeTags;
           if (shouldBeAssigned) {
+            _this.updateTagsList();
             return _this.props.onAssignTag(_this.props.todoId, tag.id).then(function(tagsList) {
               return _this.setState({
                 activeTags: tagsList
               });
+            });
+          } else {
+            activeTags = _this.state.activeTags;
+            _this.updateTagsList();
+            return _this.setState({
+              activeTags: activeTags
             });
           }
         });

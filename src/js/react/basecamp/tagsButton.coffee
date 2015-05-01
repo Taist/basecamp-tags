@@ -69,12 +69,16 @@ TagsButton = React.createFactory React.createClass
     shouldBeAssigned = not tag.id?
     @props.onSaveTag tag
     .then =>
-      @updateTagsList()
       @setState { editedTag: null }, =>
         if shouldBeAssigned
+          @updateTagsList()
           @props.onAssignTag @props.todoId, tag.id
           .then (tagsList) =>
-            @setState activeTags: tagsList          
+            @setState activeTags: tagsList
+        else
+          activeTags = @state.activeTags
+          @updateTagsList()
+          @setState activeTags: activeTags
 
   onClickByTag: (tagId, isActiveNow) ->
     method = if isActiveNow then 'onDeleteTag' else 'onAssignTag'
