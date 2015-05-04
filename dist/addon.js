@@ -293,7 +293,12 @@ ColorPicker = React.createFactory(React.createClass({
     var ref;
     return this.setState({
       activeColor: (ref = this.props.activeColor) != null ? ref : colors[Date.now() % colors.length]
-    });
+    }, (function(_this) {
+      return function() {
+        var base;
+        return typeof (base = _this.props).onSelectColor === "function" ? base.onSelectColor(_this.state.activeColor) : void 0;
+      };
+    })(this));
   },
   componentWillReceiveProps: function(nextProps) {
     return this.setState({

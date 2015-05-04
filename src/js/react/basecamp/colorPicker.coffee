@@ -9,7 +9,8 @@ ColorPicker = React.createFactory React.createClass
     activeColor: null
 
   componentDidMount: ->
-    @setState activeColor: @props.activeColor ? colors[Date.now()%colors.length]
+    @setState { activeColor: @props.activeColor ? colors[Date.now()%colors.length] }, =>
+      @props.onSelectColor? @state.activeColor
 
   componentWillReceiveProps: (nextProps) ->
     @setState activeColor: nextProps.activeColor
