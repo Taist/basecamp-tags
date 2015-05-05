@@ -22,7 +22,7 @@ TagsButton = React.createFactory React.createClass
   updateTagsList: () ->
     if @props.getAllTags?
       allTags = @props.getAllTags()
-      @setState extend {}, allTags, activeTags: @props.activeTags
+      @setState extend {}, allTags, activeTags: @props.activeTags.concat []
 
   componentDidMount: ->
     @updateTagsList()
@@ -81,17 +81,24 @@ TagsButton = React.createFactory React.createClass
           @setState activeTags: activeTags
 
   onClickByTag: (tagId, isActiveNow) ->
-    method = if isActiveNow then 'onDeleteTag' else 'onAssignTag'
+    activeTags = @state.activeTags
 
-    @props[method] @props.todoId, tagId
-    .then (tagsList) =>
-      @setState activeTags: tagsList
+    if isActiveNow
+      method = 'onDeleteTag'
+      activeTags = activeTags.filter (id) -> id isnt tagId
+    else
+      method = 'onAssignTag'
+      activeTags.push tagId
+
+    @setState { activeTags }, ->
+      @props[method] @props.todoId, tagId
+      .then (tagsList) =>
+        @setState activeTags: tagsList
 
   onTagEdit: (tag) ->
     @setState editedTag: tag
 
   render: ->
-
     span {
       ref: 'tagsButton'
       style: Styles.get 'dummy', {

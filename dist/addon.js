@@ -663,7 +663,7 @@ TagsButton = React.createFactory(React.createClass({
     if (this.props.getAllTags != null) {
       allTags = this.props.getAllTags();
       return this.setState(extend({}, allTags, {
-        activeTags: this.props.activeTags
+        activeTags: this.props.activeTags.concat([])
       }));
     }
   },
@@ -754,15 +754,28 @@ TagsButton = React.createFactory(React.createClass({
     })(this));
   },
   onClickByTag: function(tagId, isActiveNow) {
-    var method;
-    method = isActiveNow ? 'onDeleteTag' : 'onAssignTag';
-    return this.props[method](this.props.todoId, tagId).then((function(_this) {
-      return function(tagsList) {
-        return _this.setState({
-          activeTags: tagsList
-        });
-      };
-    })(this));
+    var activeTags, method;
+    activeTags = this.state.activeTags;
+    if (isActiveNow) {
+      method = 'onDeleteTag';
+      activeTags = activeTags.filter(function(id) {
+        return id !== tagId;
+      });
+    } else {
+      method = 'onAssignTag';
+      activeTags.push(tagId);
+    }
+    return this.setState({
+      activeTags: activeTags
+    }, function() {
+      return this.props[method](this.props.todoId, tagId).then((function(_this) {
+        return function(tagsList) {
+          return _this.setState({
+            activeTags: tagsList
+          });
+        };
+      })(this));
+    });
   },
   onTagEdit: function(tag) {
     return this.setState({
