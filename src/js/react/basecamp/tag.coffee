@@ -35,6 +35,7 @@ Tag = React.createFactory React.createClass
           span {
             onClick: @onEdit
             style:
+              opacity: 0.6
               position: 'absolute'
               display: 'inline-block'
               width: 14

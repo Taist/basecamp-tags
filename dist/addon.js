@@ -153,6 +153,7 @@ updateTodo = function(todoId) {
         };
         React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
       }
+      React.render(span(), app.todoContainers[todoId].list);
     }
     if ((tagsList != null ? tagsList.length : void 0) > 0) {
       buttonData.styles = {
@@ -326,7 +327,6 @@ ColorPicker = React.createFactory(React.createClass({
           style: {
             cursor: 'pointer',
             boxSizing: 'border-box',
-            opacity: color === _this.state.activeColor ? 1 : 0.4,
             border: color === _this.state.activeColor ? '1px solid black' : 'none',
             marginTop: 4,
             marginLeft: idx > 0 ? 2 : 0,
@@ -450,6 +450,7 @@ Tag = React.createFactory(React.createClass({
     }, span({
       onClick: this.onEdit,
       style: {
+        opacity: 0.6,
         position: 'absolute',
         display: 'inline-block',
         width: 14,

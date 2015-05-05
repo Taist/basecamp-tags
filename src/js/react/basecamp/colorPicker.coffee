@@ -28,7 +28,7 @@ ColorPicker = React.createFactory React.createClass
           style:
             cursor: 'pointer'
             boxSizing: 'border-box'
-            opacity: if color is @state.activeColor then 1 else 0.4
+            # opacity: if color is @state.activeColor then 1 else 0.4
             border: if color is @state.activeColor then '1px solid black' else 'none'
             marginTop: 4
             marginLeft: if idx > 0 then 2 else 0

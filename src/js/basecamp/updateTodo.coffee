@@ -38,6 +38,8 @@ updateTodo = (todoId) ->
         buttonData.styles = { visibility: 'hidden' }
         React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
 
+      React.render span(), app.todoContainers[todoId].list
+
     if tagsList?.length > 0
       buttonData.styles = { visibility: 'visible' }
       tagsIndex = app.helpers.getAllTags().tagsIndex
