@@ -9,6 +9,8 @@ appData = {}
 
 appData.tagsIndex = {}
 
+appData.tagsLinks = {}
+
 app =
   api: null
   exapi: {}
@@ -44,8 +46,15 @@ app =
 
       app.exapi.setPartOfCompanyData 'tagsIndex', tag.id, tag
       .then ->
+        app.helpers.getTodosByTag(tag.id).map (todoId) ->
+          console.log todoId
+          app.helpers.updateTodo todoId
+
         appData.tagsIndex[tag.id] = tag
+        console.log tag
         tag
+      .catch (error) ->
+        console.log error
 
     onAssignTag: (todoId, tagId) ->
       console.log 'onAssignTag', todoId, tagId
@@ -76,7 +85,17 @@ app =
     getTags: (todoId) ->
       app.exapi.getPartOfCompanyData 'todosTags', todoId
       .then (tags) ->
-        tags ? []
+        tags = [] unless tags
+        tags.forEach (tagId) ->
+          unless appData.tagsLinks[tagId]
+            appData.tagsLinks[tagId] = []
+          if appData.tagsLinks[tagId].indexOf(todoId) < 0
+            appData.tagsLinks[tagId].push todoId
+        tags
+
+    getTodosByTag: (tagId) ->
+      console.log appData.tagsLinks
+      appData.tagsLinks[tagId]
 
     setTags: (todoId, tags) ->
       app.exapi.setPartOfCompanyData 'todosTags', todoId, tags

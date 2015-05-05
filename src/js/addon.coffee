@@ -2,6 +2,9 @@ app = require './app'
 
 insertAfter = require './helpers/insertAfter'
 
+updateTodo = require './basecamp/updateTodo'
+updateTodo.init app
+
 addonEntry =
   start: (_taistApi, entryPoint) ->
     window._app = app
@@ -43,6 +46,6 @@ addonEntry =
 
           app.todoContainers[id] = { list: container, button: tagsButton }
 
-          require('./basecamp/updateTodo') id
+          app.helpers.updateTodo id
 
 module.exports = addonEntry

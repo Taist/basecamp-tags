@@ -1,10 +1,12 @@
-app = require '../app'
+
 
 React = require 'react'
 tagsListComponent = require '../react/basecamp/tagsList'
 tagsButtonComponent = require '../react/basecamp/tagsButton'
 
 { span } = React.DOM
+
+app = null
 
 updateTodo = (todoId) ->
   app.helpers.getTags todoId
@@ -51,4 +53,7 @@ updateTodo = (todoId) ->
   .catch (error) ->
     console.log error
 
-module.exports = updateTodo
+module.exports =
+  init: (_app) ->
+    app = _app
+    app.helpers.updateTodo = updateTodo

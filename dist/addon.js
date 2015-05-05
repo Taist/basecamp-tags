@@ -13,6 +13,8 @@ appData = {};
 
 appData.tagsIndex = {};
 
+appData.tagsLinks = {};
+
 app = {
   api: null,
   exapi: {},
@@ -43,8 +45,15 @@ app = {
         tag.id = generateGUID();
       }
       return app.exapi.setPartOfCompanyData('tagsIndex', tag.id, tag).then(function() {
+        app.helpers.getTodosByTag(tag.id).map(function(todoId) {
+          console.log(todoId);
+          return app.helpers.updateTodo(todoId);
+        });
         appData.tagsIndex[tag.id] = tag;
+        console.log(tag);
         return tag;
+      })["catch"](function(error) {
+        return console.log(error);
       });
     },
     onAssignTag: function(todoId, tagId) {
@@ -79,8 +88,23 @@ app = {
   helpers: {
     getTags: function(todoId) {
       return app.exapi.getPartOfCompanyData('todosTags', todoId).then(function(tags) {
-        return tags != null ? tags : [];
+        if (!tags) {
+          tags = [];
+        }
+        tags.forEach(function(tagId) {
+          if (!appData.tagsLinks[tagId]) {
+            appData.tagsLinks[tagId] = [];
+          }
+          if (appData.tagsLinks[tagId].indexOf(todoId) < 0) {
+            return appData.tagsLinks[tagId].push(todoId);
+          }
+        });
+        return tags;
       });
+    },
+    getTodosByTag: function(tagId) {
+      console.log(appData.tagsLinks);
+      return appData.tagsLinks[tagId];
     },
     setTags: function(todoId, tags) {
       return app.exapi.setPartOfCompanyData('todosTags', todoId, tags);
@@ -111,8 +135,6 @@ module.exports = app;
 },{"./helpers/generateGUID":4,"q":15,"react/lib/DOMProperty":24,"react/lib/Object.assign":41}],2:[function(require,module,exports){
 var React, app, span, tagsButtonComponent, tagsListComponent, updateTodo;
 
-app = require('../app');
-
 React = require('react');
 
 tagsListComponent = require('../react/basecamp/tagsList');
@@ -120,6 +142,8 @@ tagsListComponent = require('../react/basecamp/tagsList');
 tagsButtonComponent = require('../react/basecamp/tagsButton');
 
 span = React.DOM.span;
+
+app = null;
 
 updateTodo = function(todoId) {
   return app.helpers.getTags(todoId).then(function(tagsList) {
@@ -172,9 +196,14 @@ updateTodo = function(todoId) {
   });
 };
 
-module.exports = updateTodo;
+module.exports = {
+  init: function(_app) {
+    app = _app;
+    return app.helpers.updateTodo = updateTodo;
+  }
+};
 
-},{"../app":1,"../react/basecamp/tagsButton":11,"../react/basecamp/tagsList":12,"react":170}],3:[function(require,module,exports){
+},{"../react/basecamp/tagsButton":11,"../react/basecamp/tagsList":12,"react":170}],3:[function(require,module,exports){
 var DOMObserver, defaultConfig;
 
 defaultConfig = {
@@ -22514,11 +22543,15 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":43}],"addon":[function(require,module,exports){
-var addonEntry, app, insertAfter;
+var addonEntry, app, insertAfter, updateTodo;
 
 app = require('./app');
 
 insertAfter = require('./helpers/insertAfter');
+
+updateTodo = require('./basecamp/updateTodo');
+
+updateTodo.init(app);
 
 addonEntry = {
   start: function(_taistApi, entryPoint) {
@@ -22554,7 +22587,7 @@ addonEntry = {
             list: container,
             button: tagsButton
           };
-          return require('./basecamp/updateTodo')(id);
+          return app.helpers.updateTodo(id);
         }
       });
     });
