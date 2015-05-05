@@ -40,18 +40,15 @@ app =
 
   actions:
     onSaveTag: (tag) ->
-      console.log 'onSaveTag', tag
       unless tag.id
         tag.id = generateGUID()
 
       app.exapi.setPartOfCompanyData 'tagsIndex', tag.id, tag
       .then ->
-        app.helpers.getTodosByTag(tag.id).map (todoId) ->
-          console.log todoId
+        app.helpers.getTodosByTag(tag.id)?.map (todoId) ->
           app.helpers.updateTodo todoId
 
         appData.tagsIndex[tag.id] = tag
-        console.log tag
         tag
       .catch (error) ->
         console.log error

@@ -40,17 +40,17 @@ app = {
   },
   actions: {
     onSaveTag: function(tag) {
-      console.log('onSaveTag', tag);
       if (!tag.id) {
         tag.id = generateGUID();
       }
       return app.exapi.setPartOfCompanyData('tagsIndex', tag.id, tag).then(function() {
-        app.helpers.getTodosByTag(tag.id).map(function(todoId) {
-          console.log(todoId);
-          return app.helpers.updateTodo(todoId);
-        });
+        var ref;
+        if ((ref = app.helpers.getTodosByTag(tag.id)) != null) {
+          ref.map(function(todoId) {
+            return app.helpers.updateTodo(todoId);
+          });
+        }
         appData.tagsIndex[tag.id] = tag;
-        console.log(tag);
         return tag;
       })["catch"](function(error) {
         return console.log(error);
