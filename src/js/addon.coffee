@@ -1,5 +1,7 @@
 app = require './app'
 
+Q = require 'q'
+
 insertAfter = require './helpers/insertAfter'
 
 updateTodo = require './basecamp/updateTodo'
@@ -15,6 +17,13 @@ addonEntry =
 
     app.helpers.loadAllTags()
     .then () ->
+      app.helpers.loadTodosIndex()
+    .then () ->
+
+      app.elementObserver.waitElement '.sheet_body', () ->
+        app.helpers.loadAllTags()
+        .then () ->
+          app.helpers.loadTodosIndex()
 
       app.elementObserver.waitElement 'li.todo.show', (todoElem) ->
         unless todoElem.querySelector '.taist'

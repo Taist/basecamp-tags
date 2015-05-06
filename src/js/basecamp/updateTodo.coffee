@@ -12,6 +12,9 @@ updateTodo = (todoId) ->
   app.helpers.getTags todoId
   .then (tagsList) ->
 
+    unless app.todoContainers[todoId]
+      return false
+
     buttonData = {
       todoId: todoId
 

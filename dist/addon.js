@@ -13,6 +13,8 @@ appData = {};
 
 appData.tagsIndex = {};
 
+appData.todosIndex = {};
+
 appData.tagsLinks = {};
 
 app = {
@@ -58,11 +60,11 @@ app = {
     },
     onAssignTag: function(todoId, tagId) {
       console.log('onAssignTag', todoId, tagId);
-      return app.helpers.getTags(todoId).then(function(tags) {
+      return app.helpers.loadTags(todoId).then(function(tags) {
         if (tags.indexOf(tagId) < 0) {
           tags.push(tagId);
           return app.helpers.setTags(todoId, tags).then(function() {
-            return tags;
+            return app.helpers.buildTagsLinks(todoId, tags);
           });
         } else {
           return tags;
@@ -73,7 +75,7 @@ app = {
     },
     onDeleteTag: function(todoId, tagId) {
       console.log('onDeleteTag', todoId, tagId);
-      return app.helpers.getTags(todoId).then(function(tags) {
+      return app.helpers.loadTags(todoId).then(function(tags) {
         tags = tags.filter(function(tag) {
           return tag !== tagId;
         });
@@ -86,28 +88,56 @@ app = {
     }
   },
   helpers: {
-    getTags: function(todoId) {
-      return app.exapi.getPartOfCompanyData('todosTags', todoId).then(function(tags) {
-        if (!tags) {
-          tags = [];
+    buildTagsLinks: function(todoId, tags) {
+      if (!tags) {
+        tags = [];
+      }
+      tags.forEach(function(tagId) {
+        if (!appData.tagsLinks[tagId]) {
+          appData.tagsLinks[tagId] = [];
         }
-        tags.forEach(function(tagId) {
-          if (!appData.tagsLinks[tagId]) {
-            appData.tagsLinks[tagId] = [];
-          }
-          if (appData.tagsLinks[tagId].indexOf(todoId) < 0) {
-            return appData.tagsLinks[tagId].push(todoId);
-          }
-        });
-        return tags;
+        if (appData.tagsLinks[tagId].indexOf(todoId) < 0) {
+          return appData.tagsLinks[tagId].push(todoId);
+        }
+      });
+      return tags;
+    },
+    loadTags: function(todoId) {
+      return app.exapi.getPartOfCompanyData('todosTags', todoId).then(function(tags) {
+        return app.helpers.buildTagsLinks(todoId, tags);
       });
     },
+    getTags: function(todoId) {
+      var ref;
+      return Q.resolve((ref = appData.todosIndex[todoId]) != null ? ref : []);
+    },
     getTodosByTag: function(tagId) {
-      console.log(appData.tagsLinks);
       return appData.tagsLinks[tagId];
     },
     setTags: function(todoId, tags) {
-      return app.exapi.setPartOfCompanyData('todosTags', todoId, tags);
+      return app.exapi.setPartOfCompanyData('todosTags', todoId, tags).then(function() {
+        return appData.todosIndex[todoId] = tags;
+      });
+    },
+    loadTodosIndex: function() {
+      return app.exapi.getCompanyData('todosTags').then(function(index) {
+        var ref, ref1, tags, todoId;
+        for (todoId in index) {
+          tags = index[todoId];
+          if (((ref = appData.todosIndex[todoId]) != null ? ref.join() : void 0) !== tags.join()) {
+            appData.todosIndex[todoId] = tags;
+            app.helpers.updateTodo(todoId);
+          }
+        }
+        appData.todosIndex = {};
+        extend(appData.todosIndex, index);
+        ref1 = appData.todosIndex;
+        for (todoId in ref1) {
+          tags = ref1[todoId];
+          app.helpers.buildTagsLinks(todoId, tags);
+        }
+        return appData.todosIndex;
+      });
     },
     loadAllTags: function() {
       return app.exapi.getCompanyData('tagsIndex').then(function(index) {
@@ -148,6 +178,9 @@ app = null;
 updateTodo = function(todoId) {
   return app.helpers.getTags(todoId).then(function(tagsList) {
     var buttonData, tagsIndex;
+    if (!app.todoContainers[todoId]) {
+      return false;
+    }
     buttonData = {
       todoId: todoId,
       dataBehavior: 'expandable expand_exclusively',
@@ -22556,9 +22589,11 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":43}],"addon":[function(require,module,exports){
-var addonEntry, app, insertAfter, updateTodo;
+var Q, addonEntry, app, insertAfter, updateTodo;
 
 app = require('./app');
+
+Q = require('q');
 
 insertAfter = require('./helpers/insertAfter');
 
@@ -22574,6 +22609,13 @@ addonEntry = {
     DOMObserver = require('./helpers/domObserver');
     app.elementObserver = new DOMObserver();
     return app.helpers.loadAllTags().then(function() {
+      return app.helpers.loadTodosIndex();
+    }).then(function() {
+      app.elementObserver.waitElement('.sheet_body', function() {
+        return app.helpers.loadAllTags().then(function() {
+          return app.helpers.loadTodosIndex();
+        });
+      });
       return app.elementObserver.waitElement('li.todo.show', function(todoElem) {
         var container, id, nextElem, parent, tagsButton;
         if (!todoElem.querySelector('.taist')) {
@@ -22609,5 +22651,5 @@ addonEntry = {
 
 module.exports = addonEntry;
 
-},{"./app":1,"./basecamp/updateTodo":2,"./helpers/domObserver":3,"./helpers/insertAfter":5}]},{},[]);
+},{"./app":1,"./basecamp/updateTodo":2,"./helpers/domObserver":3,"./helpers/insertAfter":5,"q":15}]},{},[]);
 ;return require("addon")}

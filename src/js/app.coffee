@@ -9,6 +9,8 @@ appData = {}
 
 appData.tagsIndex = {}
 
+appData.todosIndex = {}
+
 appData.tagsLinks = {}
 
 app =
@@ -55,13 +57,13 @@ app =
 
     onAssignTag: (todoId, tagId) ->
       console.log 'onAssignTag', todoId, tagId
-      app.helpers.getTags todoId
+      app.helpers.loadTags todoId
       .then (tags) ->
         if tags.indexOf(tagId) < 0
           tags.push tagId
           app.helpers.setTags todoId, tags
           .then ->
-            tags
+            app.helpers.buildTagsLinks todoId, tags
         else
           tags
       .catch (error) ->
@@ -69,7 +71,7 @@ app =
 
     onDeleteTag: (todoId, tagId) ->
       console.log 'onDeleteTag', todoId, tagId
-      app.helpers.getTags todoId
+      app.helpers.loadTags todoId
       .then (tags) ->
         tags = tags.filter (tag) -> tag isnt tagId
         app.helpers.setTags todoId, tags
@@ -79,23 +81,46 @@ app =
         console.log error
 
   helpers:
-    getTags: (todoId) ->
+    buildTagsLinks: (todoId, tags) ->
+      tags = [] unless tags
+      tags.forEach (tagId) ->
+        unless appData.tagsLinks[tagId]
+          appData.tagsLinks[tagId] = []
+        if appData.tagsLinks[tagId].indexOf(todoId) < 0
+          appData.tagsLinks[tagId].push todoId
+      tags
+
+    loadTags: (todoId) ->
       app.exapi.getPartOfCompanyData 'todosTags', todoId
       .then (tags) ->
-        tags = [] unless tags
-        tags.forEach (tagId) ->
-          unless appData.tagsLinks[tagId]
-            appData.tagsLinks[tagId] = []
-          if appData.tagsLinks[tagId].indexOf(todoId) < 0
-            appData.tagsLinks[tagId].push todoId
-        tags
+        app.helpers.buildTagsLinks todoId, tags
+
+    getTags: (todoId) ->
+      Q.resolve appData.todosIndex[todoId] ? []
 
     getTodosByTag: (tagId) ->
-      console.log appData.tagsLinks
       appData.tagsLinks[tagId]
 
     setTags: (todoId, tags) ->
       app.exapi.setPartOfCompanyData 'todosTags', todoId, tags
+      .then () ->
+        appData.todosIndex[todoId] = tags
+
+    loadTodosIndex: ->
+      app.exapi.getCompanyData 'todosTags'
+      .then (index) ->
+        for todoId, tags of index
+          if appData.todosIndex[todoId]?.join() isnt tags.join()
+            appData.todosIndex[todoId] = tags
+            app.helpers.updateTodo todoId
+
+        appData.todosIndex = {}
+        extend appData.todosIndex, index
+
+        for todoId, tags of appData.todosIndex
+          app.helpers.buildTagsLinks todoId, tags
+
+        appData.todosIndex
 
     loadAllTags: ->
       app.exapi.getCompanyData 'tagsIndex'
