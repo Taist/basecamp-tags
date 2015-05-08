@@ -1,8 +1,9 @@
 {
   "id": "basecamp-tags",
-  "title": "Basecamp Tags",
+  "title": "Tags",
   "siteName": "Basecamp",
   "js": "addon.js",
-  "shortDescription": "Tags support for Basecamp tags",
-  "siteRegexp": "basecamp\\.com"
+  "shortDescription": "Tags for Basecamp todos",
+  "siteRegexp": "basecamp\\.com",
+  "description": "./addon-description.md"
 }
