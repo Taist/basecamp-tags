@@ -47,10 +47,13 @@ app =
 
       app.exapi.setPartOfCompanyData 'tagsIndex', tag.id, tag
       .then ->
-        app.helpers.getTodosByTag(tag.id)?.map (todoId) ->
-          app.helpers.updateTodo todoId
 
         appData.tagsIndex[tag.id] = tag
+
+        app.basecamp.updateControl()
+        app.helpers.getTodosByTag(tag.id)?.map (todoId) ->
+          app.basecamp.updateTodo todoId
+
         tag
       .catch (error) ->
         console.log error
@@ -79,6 +82,8 @@ app =
           tags
       .catch (error) ->
         console.log error
+
+  basecamp: {}
 
   helpers:
     buildTagsLinks: (todoId, tags) ->
@@ -109,10 +114,12 @@ app =
     loadTodosIndex: ->
       app.exapi.getCompanyData 'todosTags'
       .then (index) ->
+
+        app.basecamp.updateControl()
         for todoId, tags of index
           if appData.todosIndex[todoId]?.join() isnt tags.join()
             appData.todosIndex[todoId] = tags
-            app.helpers.updateTodo todoId
+            app.basecamp.updateTodo todoId
 
         appData.todosIndex = {}
         extend appData.todosIndex, index

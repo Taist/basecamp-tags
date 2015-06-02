@@ -4,8 +4,8 @@ Q = require 'q'
 
 insertAfter = require './helpers/insertAfter'
 
-updateTodo = require './basecamp/updateTodo'
-updateTodo.init app
+basecampTags = require './basecamp/basecampTags'
+basecampTags.init app
 
 addonEntry =
   start: (_taistApi, entryPoint) ->
@@ -30,7 +30,7 @@ addonEntry =
 
       app.elementObserver.waitElement 'li.todo.show', (todoElem) ->
         unless todoElem.querySelector '.taist'
-          id = todoElem.id
+          todoId = todoElem.id
 
           tagsButton = document.createElement 'span'
           tagsButton.style.position = 'relative'
@@ -56,9 +56,9 @@ addonEntry =
 
               parent.insertBefore tagsButton, nextElem
 
-          app.todoContainers[id] = { list: container, button: tagsButton }
+          app.todoContainers[todoId] = { list: container, button: tagsButton }
 
-          app.helpers.updateTodo id
+          app.basecamp.updateTodo todoId
 
     .catch (err) ->
       console.log err

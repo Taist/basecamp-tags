@@ -1,10 +1,10 @@
+app = require '../app'
+
 React = require 'react'
 tagsListComponent = require '../react/basecamp/tagsList'
 tagsButtonComponent = require '../react/basecamp/tagsButton'
 
 { span } = React.DOM
-
-app = null # to resolve cross-dependency. see init function below
 
 updateTodo = (todoId) ->
   app.helpers.getTags todoId
@@ -54,7 +54,4 @@ updateTodo = (todoId) ->
   .catch (error) ->
     console.log error
 
-module.exports =
-  init: (_app) ->
-    app = _app
-    app.helpers.updateTodo = updateTodo
+module.exports = updateTodo

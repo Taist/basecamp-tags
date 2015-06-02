@@ -29,9 +29,9 @@ TagsControl = React.createFactory React.createClass
     if @props.getAllTags?
       allTags = @props.getAllTags()
       @setState extend {}, allTags, activeTags: (@props.activeTags or [])
-      console.log extend {}, allTags, activeTags: (@props.activeTags or [])
 
   componentWillReceiveProps: (nextProps) ->
+    console.log 'componentWillReceiveProps'
     @updateTagsList()
 
   componentDidMount: () ->
@@ -43,6 +43,9 @@ TagsControl = React.createFactory React.createClass
 
   onScroll: () ->
     @setState positionTop: Math.max @paddingTop, @state.initialTop - document.body.scrollTop
+
+  onClickByTag: (tagId) ->
+    @setState activeTags: [ tagId ]
 
   render: ->
     div {
@@ -60,9 +63,7 @@ TagsControl = React.createFactory React.createClass
             tagsList: @state.tagsList
             tagsIndex: @state.tagsIndex
             activeTags: @state.activeTags
-            # onClick: @onClickByTag
+            onClick: @onClickByTag
           }
-
-
 
 module.exports = TagsControl

@@ -2,14 +2,20 @@ app = require '../app'
 
 React = require 'react'
 
+container = null
+
 module.exports = (section) ->
-  tagsControl = require '../react/basecamp/tagsControl'
+  console.log 'filter', section
 
-  container = document.createElement 'div'
-  container.className = 'taist'
-  section.appendChild container
+  if section
+    container = document.createElement 'div'
+    container.className = 'taist'
+    section.appendChild container
 
-  renderData =
-    getAllTags: app.helpers.getAllTags
+  if container
+    tagsControl = require '../react/basecamp/tagsControl'
 
-  React.render tagsControl(renderData), container
+    renderData =
+      getAllTags: app.helpers.getAllTags
+
+    React.render tagsControl(renderData), container
