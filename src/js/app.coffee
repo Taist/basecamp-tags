@@ -92,6 +92,10 @@ app =
       app.exapi.setUserData 'options', app.options
       app.helpers.filterTodos()
 
+    onToggleFilter: (isFilterExpanded) ->
+      app.options.isFilterExpanded = isFilterExpanded
+      app.exapi.setUserData 'options', app.options      
+
   basecamp: {}
 
   helpers:

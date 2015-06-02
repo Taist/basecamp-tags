@@ -17,5 +17,7 @@ module.exports = (section) ->
       getAllTags: app.helpers.getAllTags
       onTagFilter: app.actions.onTagFilter
       activeTags: [ app.options.filteredTag ] if app.options.filteredTag
+      onToggleFilter: app.actions.onToggleFilter
+      isFilterExpanded: app.options.isFilterExpanded
 
     React.render tagsControl(renderData), container
