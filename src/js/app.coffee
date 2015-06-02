@@ -94,17 +94,23 @@ app =
 
     onToggleFilter: (isFilterExpanded) ->
       app.options.isFilterExpanded = isFilterExpanded
-      app.exapi.setUserData 'options', app.options      
+      app.exapi.setUserData 'options', app.options
 
   basecamp: {}
 
   helpers:
+    isTargetPage: () ->
+      if location.href.match /\/people\/\d+$/ then return true
+      if location.href.match /\/projects\/\d+$/ then return true
+      if location.href.match /\/projects\/\d+\/todolists\/\d+$/ then return true
+      false
+
     filterTodos: () ->
       tagId = app.options.filteredTag
       selectedTodos = app.helpers.getTodosByTag tagId
 
       [].slice.call(document.querySelectorAll('li.todo')).map (elem) ->
-        if tagId? and selectedTodos.indexOf(elem.id) < 0
+        if tagId? and app.helpers.isTargetPage() and selectedTodos.indexOf(elem.id) < 0
           elem.style.display = 'none'
         else
           elem.style.display = ''

@@ -63,46 +63,47 @@ TagsControl = React.createFactory React.createClass
         left: (@state.positionLeft) if @state.positionLeft
         zIndex: 2
     },
-      span { className: 'balloon', style: width: @controlWidth },
-        div { style: position: 'relative'},
-          span { style: fontWeight: 'bold' }, 'Tags filter'
-          div {
-            onClick: @onToggleFilter
-            style:
-              cursor: 'pointer'
-              marginLeft: 6
-              position: 'absolute'
-              display: 'inline-block'
-              width: 8
-              height: '100%'
-
-              backgroundSize: 'contain'
-              backgroundRepeat: 'no-repeat'
-              backgroundPosition: 'center'
-              backgroundImage: AwesomeIcons.getURL(
-                if @state.isFilterExpanded then 'chevron-up' else 'chevron-down'
-              )
-          }
-
-          if !@state.isFilterExpanded and @state.activeTags?[0]?
+      if @state.tagsList?.length > 0
+        span { className: 'balloon', style: width: @controlWidth },
+          div { style: position: 'relative'},
+            span { style: fontWeight: 'bold' }, 'Tags filter'
             div {
+              onClick: @onToggleFilter
               style:
+                cursor: 'pointer'
+                marginLeft: 6
+                position: 'absolute'
                 display: 'inline-block'
-                marginLeft: 6 * 2 + 8 #width of expand icon with margins
-            },
-              Tag {
-                tag: @state.tagsIndex[ @state.activeTags[0] ]
-                isInactive: false
-                onClick: @onClickByTag              
-              }
+                width: 8
+                height: '100%'
 
-        if @state.isFilterExpanded
-          div { style: marginTop: 8 },
-            TagsList {
-              tagsList: @state.tagsList
-              tagsIndex: @state.tagsIndex
-              activeTags: @state.activeTags
-              onClick: @onClickByTag
+                backgroundSize: 'contain'
+                backgroundRepeat: 'no-repeat'
+                backgroundPosition: 'center'
+                backgroundImage: AwesomeIcons.getURL(
+                  if @state.isFilterExpanded then 'chevron-up' else 'chevron-down'
+                )
             }
+
+            if !@state.isFilterExpanded and @state.activeTags?[0]?
+              div {
+                style:
+                  display: 'inline-block'
+                  marginLeft: 6 * 2 + 8 #width of expand icon with margins
+              },
+                Tag {
+                  tag: @state.tagsIndex[ @state.activeTags[0] ]
+                  isInactive: false
+                  onClick: @onClickByTag
+                }
+
+          if @state.isFilterExpanded
+            div { style: marginTop: 8 },
+              TagsList {
+                tagsList: @state.tagsList
+                tagsIndex: @state.tagsIndex
+                activeTags: @state.activeTags
+                onClick: @onClickByTag
+              }
 
 module.exports = TagsControl

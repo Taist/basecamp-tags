@@ -103,12 +103,24 @@ app = {
   },
   basecamp: {},
   helpers: {
+    isTargetPage: function() {
+      if (location.href.match(/\/people\/\d+$/)) {
+        return true;
+      }
+      if (location.href.match(/\/projects\/\d+$/)) {
+        return true;
+      }
+      if (location.href.match(/\/projects\/\d+\/todolists\/\d+$/)) {
+        return true;
+      }
+      return false;
+    },
     filterTodos: function() {
       var selectedTodos, tagId;
       tagId = app.options.filteredTag;
       selectedTodos = app.helpers.getTodosByTag(tagId);
       return [].slice.call(document.querySelectorAll('li.todo')).map(function(elem) {
-        if ((tagId != null) && selectedTodos.indexOf(elem.id) < 0) {
+        if ((tagId != null) && app.helpers.isTargetPage() && selectedTodos.indexOf(elem.id) < 0) {
           return elem.style.display = 'none';
         } else {
           return elem.style.display = '';
@@ -1020,7 +1032,7 @@ TagsControl = React.createFactory(React.createClass({
     })(this));
   },
   render: function() {
-    var ref1;
+    var ref1, ref2;
     return div({
       style: {
         position: 'fixed',
@@ -1028,7 +1040,7 @@ TagsControl = React.createFactory(React.createClass({
         left: this.state.positionLeft ? this.state.positionLeft : void 0,
         zIndex: 2
       }
-    }, span({
+    }, ((ref1 = this.state.tagsList) != null ? ref1.length : void 0) > 0 ? span({
       className: 'balloon',
       style: {
         width: this.controlWidth
@@ -1055,7 +1067,7 @@ TagsControl = React.createFactory(React.createClass({
         backgroundPosition: 'center',
         backgroundImage: AwesomeIcons.getURL(this.state.isFilterExpanded ? 'chevron-up' : 'chevron-down')
       }
-    }), !this.state.isFilterExpanded && (((ref1 = this.state.activeTags) != null ? ref1[0] : void 0) != null) ? div({
+    }), !this.state.isFilterExpanded && (((ref2 = this.state.activeTags) != null ? ref2[0] : void 0) != null) ? div({
       style: {
         display: 'inline-block',
         marginLeft: 6 * 2 + 8
@@ -1073,7 +1085,7 @@ TagsControl = React.createFactory(React.createClass({
       tagsIndex: this.state.tagsIndex,
       activeTags: this.state.activeTags,
       onClick: this.onClickByTag
-    })) : void 0));
+    })) : void 0) : void 0);
   }
 }));
 
