@@ -4,7 +4,7 @@ tagsButtonComponent = require '../react/basecamp/tagsButton'
 
 { span } = React.DOM
 
-app = null
+app = null # to resolve cross-dependency. see init function below
 
 updateTodo = (todoId) ->
   app.helpers.getTags todoId

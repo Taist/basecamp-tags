@@ -1,3 +1,5 @@
+app = require '../app'
+
 React = require 'react'
 
 module.exports = (section) ->
@@ -7,4 +9,7 @@ module.exports = (section) ->
   container.className = 'taist'
   section.appendChild container
 
-  React.render tagsControl( {} ), container
+  renderData =
+    getAllTags: app.helpers.getAllTags
+
+  React.render tagsControl(renderData), container

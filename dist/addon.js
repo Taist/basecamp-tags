@@ -163,20 +163,25 @@ app = {
 module.exports = app;
 
 },{"./helpers/generateGUID":5,"q":18,"react/lib/DOMProperty":27,"react/lib/Object.assign":44}],2:[function(require,module,exports){
-var React;
+var React, app;
+
+app = require('../app');
 
 React = require('react');
 
 module.exports = function(section) {
-  var container, tagsControl;
+  var container, renderData, tagsControl;
   tagsControl = require('../react/basecamp/tagsControl');
   container = document.createElement('div');
   container.className = 'taist';
   section.appendChild(container);
-  return React.render(tagsControl({}), container);
+  renderData = {
+    getAllTags: app.helpers.getAllTags
+  };
+  return React.render(tagsControl(renderData), container);
 };
 
-},{"../react/basecamp/tagsControl":14,"react":173}],3:[function(require,module,exports){
+},{"../app":1,"../react/basecamp/tagsControl":14,"react":173}],3:[function(require,module,exports){
 var React, app, span, tagsButtonComponent, tagsListComponent, updateTodo;
 
 React = require('react');
@@ -734,7 +739,7 @@ TagsButton = React.createFactory(React.createClass({
     if (this.props.getAllTags != null) {
       allTags = this.props.getAllTags();
       return this.setState(extend({}, allTags, {
-        activeTags: this.props.activeTags.concat([])
+        activeTags: this.props.activeTags || []
       }));
     }
   },
@@ -887,34 +892,60 @@ TagsButton = React.createFactory(React.createClass({
 module.exports = TagsButton;
 
 },{"./popup":9,"./styles":10,"./tagEditor":12,"./tagsList":15,"react":173,"react/lib/DOMProperty":27,"react/lib/Object.assign":44}],14:[function(require,module,exports){
-var React, TagsControl, div, getElementRect;
+var React, TagsControl, TagsList, div, extend, getElementRect, ref, span;
 
 React = require('react');
 
-div = React.DOM.div;
+extend = require('react/lib/Object.assign');
+
+ref = React.DOM, div = ref.div, span = ref.span;
 
 getElementRect = require('../../helpers/getElementRect');
 
+TagsList = require('./tagsList');
+
 TagsControl = React.createFactory(React.createClass({
+  paddingTop: 24,
+  paddingRight: -24,
   controlWidth: 200,
   getInitialState: function() {
     var container;
     container = getElementRect(document.querySelector('section.todos'));
     return {
-      positionLeft: container.left + container.width - this.controlWidth,
+      positionLeft: container.left + container.width - this.controlWidth - this.paddingRight,
       initialTop: container.top,
-      positionTop: container.top
+      positionTop: Math.max(this.paddingTop, container.top - document.body.scrollTop),
+      tagsList: [],
+      tagsIndex: {},
+      isPopupVisible: false,
+      activeTags: null
     };
   },
+  updateTagsList: function() {
+    var allTags;
+    if (this.props.getAllTags != null) {
+      allTags = this.props.getAllTags();
+      this.setState(extend({}, allTags, {
+        activeTags: this.props.activeTags || []
+      }));
+      return console.log(extend({}, allTags, {
+        activeTags: this.props.activeTags || []
+      }));
+    }
+  },
+  componentWillReceiveProps: function(nextProps) {
+    return this.updateTagsList();
+  },
   componentDidMount: function() {
-    return window.addEventListener('scroll', this.onScroll, false);
+    window.addEventListener('scroll', this.onScroll, false);
+    return this.updateTagsList();
   },
   componentWillUnmount: function() {
     return window.removeEventListener('scroll', this.onScroll, false);
   },
   onScroll: function() {
     return this.setState({
-      positionTop: Math.max(12, this.state.initialTop - document.body.scrollTop)
+      positionTop: Math.max(this.paddingTop, this.state.initialTop - document.body.scrollTop)
     });
   },
   render: function() {
@@ -923,23 +954,33 @@ TagsControl = React.createFactory(React.createClass({
         position: 'fixed',
         top: this.state.positionTop || 0,
         left: this.state.positionLeft ? this.state.positionLeft : void 0,
-        width: this.controlWidth,
-        border: '1px solid silver',
-        padding: 8,
-        fontFamily: 'arial, sans-serif',
-        fontSize: 13,
-        background: 'white',
-        zIndex: 1001
+        zIndex: 2
+      }
+    }, span({
+      className: 'balloon',
+      style: {
+        width: this.controlWidth
       }
     }, div({
-      className: 'tagsControl'
-    }, 'TAGS CONTROL'));
+      style: {
+        position: 'relative',
+        marginBottom: 8
+      }
+    }, span({
+      style: {
+        fontWeight: 'bold'
+      }
+    }, 'Tags filter')), div({}, TagsList({
+      tagsList: this.state.tagsList,
+      tagsIndex: this.state.tagsIndex,
+      activeTags: this.state.activeTags
+    }))));
   }
 }));
 
 module.exports = TagsControl;
 
-},{"../../helpers/getElementRect":6,"react":173}],15:[function(require,module,exports){
+},{"../../helpers/getElementRect":6,"./tagsList":15,"react":173,"react/lib/Object.assign":44}],15:[function(require,module,exports){
 var React, Tag, TagsList, div, extend;
 
 React = require('react');

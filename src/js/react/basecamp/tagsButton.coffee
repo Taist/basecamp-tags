@@ -22,7 +22,7 @@ TagsButton = React.createFactory React.createClass
   updateTagsList: () ->
     if @props.getAllTags?
       allTags = @props.getAllTags()
-      @setState extend {}, allTags, activeTags: @props.activeTags.concat []
+      @setState extend {}, allTags, activeTags: (@props.activeTags or [])
 
   componentDidMount: ->
     @updateTagsList()
