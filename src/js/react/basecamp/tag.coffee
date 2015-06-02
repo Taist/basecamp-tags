@@ -16,7 +16,7 @@ Tag = React.createFactory React.createClass
     @props.onEdit @props.tag
 
   render: ->
-    opacity = if @props.isInactive then 0.4 else 1
+    opacity = if @props.isInactive then 0.6 else 1
     background = @props.tag.color ? '#e2e9f8'
     span {
       key: @props.tag.id

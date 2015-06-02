@@ -529,7 +529,7 @@ Tag = React.createFactory(React.createClass({
   },
   render: function() {
     var background, opacity, ref;
-    opacity = this.props.isInactive ? 0.4 : 1;
+    opacity = this.props.isInactive ? 0.6 : 1;
     background = (ref = this.props.tag.color) != null ? ref : '#e2e9f8';
     return span({
       key: this.props.tag.id,
