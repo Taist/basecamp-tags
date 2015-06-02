@@ -1,5 +1,3 @@
-
-
 React = require 'react'
 tagsListComponent = require '../react/basecamp/tagsList'
 tagsButtonComponent = require '../react/basecamp/tagsButton'

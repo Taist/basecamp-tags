@@ -20,10 +20,13 @@ addonEntry =
       app.helpers.loadTodosIndex()
     .then () ->
 
-      app.elementObserver.waitElement '.sheet_body', () ->
+      app.elementObserver.waitElement '.sheet_body', ->
         app.helpers.loadAllTags()
         .then () ->
           app.helpers.loadTodosIndex()
+
+      app.elementObserver.waitElement 'section.todos', (section) ->
+        require('./basecamp/showTagsControl')(section)
 
       app.elementObserver.waitElement 'li.todo.show', (todoElem) ->
         unless todoElem.querySelector '.taist'
@@ -56,5 +59,8 @@ addonEntry =
           app.todoContainers[id] = { list: container, button: tagsButton }
 
           app.helpers.updateTodo id
+
+    .catch (err) ->
+      console.log err
 
 module.exports = addonEntry
