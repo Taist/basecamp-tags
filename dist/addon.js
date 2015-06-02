@@ -20,6 +20,10 @@ appData.tagsLinks = {};
 app = {
   api: null,
   exapi: {},
+  options: {
+    isFilterExpanded: true,
+    filteredTag: null
+  },
   todoContainers: {},
   init: function(api) {
     app.api = api;
@@ -86,10 +90,27 @@ app = {
       })["catch"](function(error) {
         return console.log(error);
       });
+    },
+    onTagFilter: function(tagId) {
+      app.options.filteredTag = tagId;
+      app.exapi.setUserData('options', app.options);
+      return app.helpers.filterTodos();
     }
   },
   basecamp: {},
   helpers: {
+    filterTodos: function() {
+      var selectedTodos, tagId;
+      tagId = app.options.filteredTag;
+      selectedTodos = app.helpers.getTodosByTag(tagId);
+      return [].slice.call(document.querySelectorAll('li.todo')).map(function(elem) {
+        if ((tagId != null) && selectedTodos.indexOf(elem.id) < 0) {
+          return elem.style.display = 'none';
+        } else {
+          return elem.style.display = '';
+        }
+      });
+    },
     buildTagsLinks: function(todoId, tags) {
       if (!tags) {
         tags = [];
@@ -193,7 +214,6 @@ container = null;
 
 module.exports = function(section) {
   var renderData, tagsControl;
-  console.log('filter', section);
   if (section) {
     container = document.createElement('div');
     container.className = 'taist';
@@ -202,7 +222,9 @@ module.exports = function(section) {
   if (container) {
     tagsControl = require('../react/basecamp/tagsControl');
     renderData = {
-      getAllTags: app.helpers.getAllTags
+      getAllTags: app.helpers.getAllTags,
+      onTagFilter: app.actions.onTagFilter,
+      activeTags: app.options.filteredTag ? [app.options.filteredTag] : void 0
     };
     return React.render(tagsControl(renderData), container);
   }
@@ -970,8 +992,12 @@ TagsControl = React.createFactory(React.createClass({
   },
   onClickByTag: function(tagId) {
     return this.setState({
-      activeTags: [tagId]
-    });
+      activeTags: (this.state.activeTags[0] === tagId ? [] : [tagId])
+    }, (function(_this) {
+      return function() {
+        return _this.props.onTagFilter(_this.state.activeTags[0]);
+      };
+    })(this));
   },
   render: function() {
     return div({
@@ -22748,11 +22774,13 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":47}],"addon":[function(require,module,exports){
-var Q, addonEntry, app, basecampTags, insertAfter;
+var Q, addonEntry, app, basecampTags, extend, insertAfter;
 
 app = require('./app');
 
 Q = require('q');
+
+extend = require('react/lib/Object.assign');
 
 insertAfter = require('./helpers/insertAfter');
 
@@ -22767,9 +22795,11 @@ addonEntry = {
     app.init(_taistApi);
     DOMObserver = require('./helpers/domObserver');
     app.elementObserver = new DOMObserver();
-    return app.helpers.loadAllTags().then(function() {
+    return Q.all([app.exapi.getUserData('options'), app.helpers.loadAllTags()]).spread(function(options) {
+      extend(app.options, options);
       return app.helpers.loadTodosIndex();
     }).then(function() {
+      app.helpers.filterTodos();
       app.elementObserver.waitElement('.sheet_body', function() {
         return app.helpers.loadAllTags().then(function() {
           return app.helpers.loadTodosIndex();
@@ -22815,5 +22845,5 @@ addonEntry = {
 
 module.exports = addonEntry;
 
-},{"./app":1,"./basecamp/basecampTags":2,"./basecamp/showTagsControl":3,"./helpers/domObserver":5,"./helpers/insertAfter":8,"q":19}]},{},[]);
+},{"./app":1,"./basecamp/basecampTags":2,"./basecamp/showTagsControl":3,"./helpers/domObserver":5,"./helpers/insertAfter":8,"q":19,"react/lib/Object.assign":45}]},{},[]);
 ;return require("addon")}

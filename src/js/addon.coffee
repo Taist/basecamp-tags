@@ -2,6 +2,8 @@ app = require './app'
 
 Q = require 'q'
 
+extend = require 'react/lib/Object.assign'
+
 insertAfter = require './helpers/insertAfter'
 
 basecampTags = require './basecamp/basecampTags'
@@ -15,10 +17,18 @@ addonEntry =
     DOMObserver = require './helpers/domObserver'
     app.elementObserver = new DOMObserver()
 
-    app.helpers.loadAllTags()
-    .then () ->
+    Q.all [
+      app.exapi.getUserData 'options'
+      app.helpers.loadAllTags()
+    ]
+
+    .spread (options) ->
+      extend app.options, options
+
       app.helpers.loadTodosIndex()
+
     .then () ->
+      app.helpers.filterTodos()
 
       app.elementObserver.waitElement '.sheet_body', ->
         app.helpers.loadAllTags()

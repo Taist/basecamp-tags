@@ -45,7 +45,8 @@ TagsControl = React.createFactory React.createClass
     @setState positionTop: Math.max @paddingTop, @state.initialTop - document.body.scrollTop
 
   onClickByTag: (tagId) ->
-    @setState activeTags: [ tagId ]
+    @setState activeTags: (if @state.activeTags[0] is tagId then [] else [ tagId ]), =>
+      @props.onTagFilter @state.activeTags[0]
 
   render: ->
     div {

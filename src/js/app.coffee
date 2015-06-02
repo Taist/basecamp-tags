@@ -17,6 +17,10 @@ app =
   api: null
   exapi: {}
 
+  options:
+    isFilterExpanded: true
+    filteredTag: null
+
   todoContainers: {}
 
   init: (api) ->
@@ -83,9 +87,25 @@ app =
       .catch (error) ->
         console.log error
 
+    onTagFilter: (tagId) ->
+      app.options.filteredTag = tagId
+      app.exapi.setUserData 'options', app.options
+      app.helpers.filterTodos()
+
   basecamp: {}
 
   helpers:
+    filterTodos: () ->
+      tagId = app.options.filteredTag
+      selectedTodos = app.helpers.getTodosByTag tagId
+
+      [].slice.call(document.querySelectorAll('li.todo')).map (elem) ->
+        if tagId? and selectedTodos.indexOf(elem.id) < 0
+          elem.style.display = 'none'
+        else
+          elem.style.display = ''
+
+
     buildTagsLinks: (todoId, tags) ->
       tags = [] unless tags
       tags.forEach (tagId) ->

@@ -5,8 +5,6 @@ React = require 'react'
 container = null
 
 module.exports = (section) ->
-  console.log 'filter', section
-
   if section
     container = document.createElement 'div'
     container.className = 'taist'
@@ -17,5 +15,7 @@ module.exports = (section) ->
 
     renderData =
       getAllTags: app.helpers.getAllTags
+      onTagFilter: app.actions.onTagFilter
+      activeTags: [ app.options.filteredTag ] if app.options.filteredTag
 
     React.render tagsControl(renderData), container
