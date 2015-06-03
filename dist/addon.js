@@ -118,7 +118,7 @@ app = {
     filterTodos: function() {
       var selectedTodos, tagId;
       tagId = app.options.filteredTag;
-      selectedTodos = app.helpers.getTodosByTag(tagId);
+      selectedTodos = app.helpers.getTodosByTag(tagId) || [];
       return [].slice.call(document.querySelectorAll('li.todo')).map(function(elem) {
         if ((tagId != null) && app.helpers.isTargetPage() && selectedTodos.indexOf(elem.id) < 0) {
           return elem.style.display = 'none';

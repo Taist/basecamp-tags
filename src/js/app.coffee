@@ -107,7 +107,7 @@ app =
 
     filterTodos: () ->
       tagId = app.options.filteredTag
-      selectedTodos = app.helpers.getTodosByTag tagId
+      selectedTodos = app.helpers.getTodosByTag(tagId) or []
 
       [].slice.call(document.querySelectorAll('li.todo')).map (elem) ->
         if tagId? and app.helpers.isTargetPage() and selectedTodos.indexOf(elem.id) < 0
