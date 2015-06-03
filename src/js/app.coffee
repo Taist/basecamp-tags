@@ -170,7 +170,7 @@ app =
         tagsList.push id
 
       f = (a) -> appData.tagsIndex[a].name.toLowerCase()
-      tagsList.sort (a, b) -> if  f(a) > f(b) then 1 else 0
+      tagsList.sort (a, b) -> if f(a) > f(b) then 1 else -1
 
       { tagsList, tagsIndex: appData.tagsIndex }
 
