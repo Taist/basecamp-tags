@@ -23,7 +23,7 @@ addonEntry =
     ]
 
     .spread (options) ->
-      extend app.options, options
+      extend app.options, options, filteredTag: null
 
       app.helpers.loadTodosIndex()
 

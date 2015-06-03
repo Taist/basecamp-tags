@@ -89,7 +89,7 @@ app =
 
     onTagFilter: (tagId) ->
       app.options.filteredTag = tagId
-      app.exapi.setUserData 'options', app.options
+      #app.exapi.setUserData 'options', app.options
       app.helpers.filterTodos()
 
     onToggleFilter: (isFilterExpanded) ->

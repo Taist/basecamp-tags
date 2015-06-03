@@ -93,7 +93,6 @@ app = {
     },
     onTagFilter: function(tagId) {
       app.options.filteredTag = tagId;
-      app.exapi.setUserData('options', app.options);
       return app.helpers.filterTodos();
     },
     onToggleFilter: function(isFilterExpanded) {
@@ -22870,7 +22869,9 @@ addonEntry = {
     DOMObserver = require('./helpers/domObserver');
     app.elementObserver = new DOMObserver();
     return Q.all([app.exapi.getUserData('options'), app.helpers.loadAllTags()]).spread(function(options) {
-      extend(app.options, options);
+      extend(app.options, options, {
+        filteredTag: null
+      });
       return app.helpers.loadTodosIndex();
     }).then(function() {
       app.helpers.filterTodos();
