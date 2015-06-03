@@ -168,6 +168,10 @@ app =
       tagsList = []
       for id, tag of appData.tagsIndex
         tagsList.push id
+
+      f = (a) -> appData.tagsIndex[a].name.toLowerCase()
+      tagsList.sort (a, b) -> if  f(a) > f(b) then 1 else 0
+
       { tagsList, tagsIndex: appData.tagsIndex }
 
 module.exports = app

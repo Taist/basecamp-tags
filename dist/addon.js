@@ -185,13 +185,23 @@ app = {
       });
     },
     getAllTags: function() {
-      var id, ref, tag, tagsList;
+      var f, id, ref, tag, tagsList;
       tagsList = [];
       ref = appData.tagsIndex;
       for (id in ref) {
         tag = ref[id];
         tagsList.push(id);
       }
+      f = function(a) {
+        return appData.tagsIndex[a].name.toLowerCase();
+      };
+      tagsList.sort(function(a, b) {
+        if (f(a) > f(b)) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
       return {
         tagsList: tagsList,
         tagsIndex: appData.tagsIndex
