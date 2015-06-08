@@ -6,7 +6,13 @@ Styles = require './styles'
 
 BasecampPopup = React.createFactory React.createClass
   render: ->
-    span { className: 'balloon right_side expanded_content', style: width: 200 },
+    span {
+      className: 'balloon right_side expanded_content',
+      style:
+        right: -238
+        width: 200
+        display: 'block'
+    },
       span { className: 'arrow' }
       span { className: 'arrow' }
       label {},

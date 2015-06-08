@@ -102,30 +102,32 @@ TagsButton = React.createFactory React.createClass
     span {
       ref: 'tagsButton'
       style: Styles.get 'dummy', {
-        visibility: 'hidden'
+        visibility: 'visible'
         marginLeft: 0
+        position: 'relative'
       }, @props.styles
       className: @props.classes + ' has_balloon exclusively_expanded'
       'data-behavior': @props.dataBehavior
-      'data-hovercontent-strategy': 'visibility'
+      # 'data-hovercontent-strategy': 'visibility'
     },
       a {
-        href: '#'
-        'data-behavior': 'expand_on_click'
+        # href: '#'
+        # 'data-behavior': 'expand_on_click'
         onClick: @onPopupOpen
       },
         @props.content
 
-      BasecampPopup {
-        header: 'Assign tags to this to-do'
-        content: TagsList {
-          tagsList: @state.tagsList
-          tagsIndex: @state.tagsIndex
-          activeTags: @state.activeTags
-          onClick: @onClickByTag
-          onTagEdit: @onTagEdit
+      if @state.isPopupVisible
+        BasecampPopup {
+          header: 'Assign tags to this to-do'
+          content: TagsList {
+            tagsList: @state.tagsList
+            tagsIndex: @state.tagsIndex
+            activeTags: @state.activeTags
+            onClick: @onClickByTag
+            onTagEdit: @onTagEdit
+          }
+          footer: TagEditor { onSaveTag: @onSaveTag, editedTag: @state.editedTag }
         }
-        footer: TagEditor { onSaveTag: @onSaveTag, editedTag: @state.editedTag }
-      }
 
 module.exports = TagsButton

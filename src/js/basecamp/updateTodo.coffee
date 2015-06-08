@@ -30,15 +30,14 @@ updateTodo = (todoId) ->
     }
 
     unless tagsList?.length > 0
-      buttonData.content = span {}, 'Tags'
+      buttonData.content = span { style: cursor: 'pointer' }, 'Tags'
       buttonData.classes = 'pill blank'
 
       if location.href.match /todos\/\d+/i
         buttonData.styles = { visibility: 'visible', zIndex: 996, marginLeft: 4 }
         React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
       else
-        buttonData.dataBehavior += ' hover_content'
-        buttonData.styles = { visibility: 'hidden' }
+        buttonData.styles = { visibility: 'visible' }
         React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].button
 
       React.render span(), app.todoContainers[todoId].list

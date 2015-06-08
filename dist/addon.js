@@ -289,7 +289,11 @@ updateTodo = function(todoId) {
       }
     };
     if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
-      buttonData.content = span({}, 'Tags');
+      buttonData.content = span({
+        style: {
+          cursor: 'pointer'
+        }
+      }, 'Tags');
       buttonData.classes = 'pill blank';
       if (location.href.match(/todos\/\d+/i)) {
         buttonData.styles = {
@@ -299,9 +303,8 @@ updateTodo = function(todoId) {
         };
         React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
       } else {
-        buttonData.dataBehavior += ' hover_content';
         buttonData.styles = {
-          visibility: 'hidden'
+          visibility: 'visible'
         };
         React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].button);
       }
@@ -534,7 +537,9 @@ BasecampPopup = React.createFactory(React.createClass({
     return span({
       className: 'balloon right_side expanded_content',
       style: {
-        width: 200
+        right: -238,
+        width: 200,
+        display: 'block'
       }
     }, span({
       className: 'arrow'
@@ -936,17 +941,15 @@ TagsButton = React.createFactory(React.createClass({
     return span({
       ref: 'tagsButton',
       style: Styles.get('dummy', {
-        visibility: 'hidden',
-        marginLeft: 0
+        visibility: 'visible',
+        marginLeft: 0,
+        position: 'relative'
       }, this.props.styles),
       className: this.props.classes + ' has_balloon exclusively_expanded',
-      'data-behavior': this.props.dataBehavior,
-      'data-hovercontent-strategy': 'visibility'
+      'data-behavior': this.props.dataBehavior
     }, a({
-      href: '#',
-      'data-behavior': 'expand_on_click',
       onClick: this.onPopupOpen
-    }, this.props.content), BasecampPopup({
+    }, this.props.content), this.state.isPopupVisible ? BasecampPopup({
       header: 'Assign tags to this to-do',
       content: TagsList({
         tagsList: this.state.tagsList,
@@ -959,7 +962,7 @@ TagsButton = React.createFactory(React.createClass({
         onSaveTag: this.onSaveTag,
         editedTag: this.state.editedTag
       })
-    }));
+    }) : void 0);
   }
 }));
 
@@ -22884,11 +22887,10 @@ addonEntry = {
         return require('./basecamp/showTagsControl')(section);
       });
       return app.elementObserver.waitElement('li.todo.show', function(todoElem) {
-        var container, nextElem, parent, tagsButton, todoId;
+        var container, nextElem, tagsButton, todoId;
         if (!todoElem.querySelector('.taist')) {
           todoId = todoElem.id;
           tagsButton = document.createElement('span');
-          tagsButton.style.position = 'relative';
           tagsButton.className = 'taist';
           if (location.href.match(/todos\/\d+/i)) {
             container = document.createElement('div');
@@ -22898,11 +22900,10 @@ addonEntry = {
           } else {
             container = document.createElement('span');
             container.className = 'taist';
-            nextElem = todoElem.querySelector('form.edit_todo span');
+            nextElem = todoElem.querySelector('span.content');
             if (nextElem) {
-              parent = nextElem.parentNode;
-              parent.insertBefore(container, nextElem);
-              parent.insertBefore(tagsButton, nextElem);
+              insertAfter(container, nextElem);
+              insertAfter(tagsButton, nextElem);
             }
           }
           app.todoContainers[todoId] = {

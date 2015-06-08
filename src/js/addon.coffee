@@ -43,7 +43,7 @@ addonEntry =
           todoId = todoElem.id
 
           tagsButton = document.createElement 'span'
-          tagsButton.style.position = 'relative'
+          # tagsButton.style.position = 'relative'
           tagsButton.className = 'taist'
 
           if location.href.match /todos\/\d+/i
@@ -58,13 +58,13 @@ addonEntry =
             container = document.createElement 'span'
             container.className = 'taist'
 
-            nextElem = todoElem.querySelector 'form.edit_todo span'
+            nextElem = todoElem.querySelector 'span.content'
             if nextElem
-              parent = nextElem.parentNode
+              # parent = nextElem.parentNode
 
-              parent.insertBefore container, nextElem
+              insertAfter container, nextElem
 
-              parent.insertBefore tagsButton, nextElem
+              insertAfter tagsButton, nextElem
 
           app.todoContainers[todoId] = { list: container, button: tagsButton }
 
