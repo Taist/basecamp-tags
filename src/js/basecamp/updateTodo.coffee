@@ -6,9 +6,13 @@ tagsButtonComponent = require '../react/basecamp/tagsButton'
 
 { span } = React.DOM
 
+isLog = false
+
 updateTodo = (todoId) ->
   app.helpers.getTags todoId
   .then (tagsList) ->
+    if isLog
+      console.log tagsList
 
     unless app.todoContainers[todoId]
       return false
@@ -26,11 +30,12 @@ updateTodo = (todoId) ->
       activeTags: tagsList
 
       onPopupClose: ->
+        console.log todoId
+        isLog = true
         updateTodo todoId
     }
 
     unless tagsList?.length > 0
-      buttonData.content = span { style: cursor: 'pointer' }, 'Tags'
       buttonData.classes = 'pill blank'
 
       if location.href.match /todos\/\d+/i
@@ -45,7 +50,6 @@ updateTodo = (todoId) ->
     if tagsList?.length > 0
       buttonData.styles = { visibility: 'visible' }
       tagsIndex = app.helpers.getAllTags().tagsIndex
-      buttonData.content = tagsListComponent { tagsList, tagsIndex }
 
       React.render tagsButtonComponent( buttonData ), app.todoContainers[todoId].list
       React.render span(), app.todoContainers[todoId].button

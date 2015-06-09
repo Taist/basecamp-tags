@@ -85,7 +85,7 @@ app = {
           return tag !== tagId;
         });
         return app.helpers.setTags(todoId, tags).then(function() {
-          return tags;
+          return app.helpers.buildTagsLinks(todoId, tags);
         });
       })["catch"](function(error) {
         return console.log(error);
@@ -258,7 +258,7 @@ module.exports = function(section) {
 };
 
 },{"../app":1,"../react/basecamp/tagsControl":15,"react":174}],4:[function(require,module,exports){
-var React, app, span, tagsButtonComponent, tagsListComponent, updateTodo;
+var React, app, isLog, span, tagsButtonComponent, tagsListComponent, updateTodo;
 
 app = require('../app');
 
@@ -270,9 +270,14 @@ tagsButtonComponent = require('../react/basecamp/tagsButton');
 
 span = React.DOM.span;
 
+isLog = false;
+
 updateTodo = function(todoId) {
   return app.helpers.getTags(todoId).then(function(tagsList) {
     var buttonData, tagsIndex;
+    if (isLog) {
+      console.log(tagsList);
+    }
     if (!app.todoContainers[todoId]) {
       return false;
     }
@@ -285,15 +290,12 @@ updateTodo = function(todoId) {
       getAllTags: app.helpers.getAllTags,
       activeTags: tagsList,
       onPopupClose: function() {
+        console.log(todoId);
+        isLog = true;
         return updateTodo(todoId);
       }
     };
     if (!((tagsList != null ? tagsList.length : void 0) > 0)) {
-      buttonData.content = span({
-        style: {
-          cursor: 'pointer'
-        }
-      }, 'Tags');
       buttonData.classes = 'pill blank';
       if (location.href.match(/todos\/\d+/i)) {
         buttonData.styles = {
@@ -315,10 +317,6 @@ updateTodo = function(todoId) {
         visibility: 'visible'
       };
       tagsIndex = app.helpers.getAllTags().tagsIndex;
-      buttonData.content = tagsListComponent({
-        tagsList: tagsList,
-        tagsIndex: tagsIndex
-      });
       React.render(tagsButtonComponent(buttonData), app.todoContainers[todoId].list);
       return React.render(span(), app.todoContainers[todoId].button);
     }
@@ -781,7 +779,7 @@ TagEditor = React.createFactory(React.createClass({
 module.exports = TagEditor;
 
 },{"./colorPicker":9,"react":174,"react/lib/Object.assign":45}],14:[function(require,module,exports){
-var BasecampPopup, React, Styles, TagEditor, TagsButton, TagsList, a, attrName, dataAttrName, div, extend, ref, span;
+var BasecampPopup, React, Styles, TagEditor, TagsButton, TagsList, a, attrName, dataAttrName, div, extend, ref, span, tagsListComponent;
 
 React = require('react');
 
@@ -803,6 +801,8 @@ dataAttrName = attrName.replace(/^data-/, '').replace(/-./g, function(a) {
   return a.slice(1).toUpperCase();
 });
 
+tagsListComponent = require('./tagsList');
+
 TagsButton = React.createFactory(React.createClass({
   getInitialState: function() {
     return {
@@ -813,35 +813,25 @@ TagsButton = React.createFactory(React.createClass({
       editedTag: null
     };
   },
-  updateTagsList: function() {
+  updateTagsList: function(newProps) {
     var allTags;
-    if (this.props.getAllTags != null) {
-      allTags = this.props.getAllTags();
+    if (newProps == null) {
+      newProps = this.props;
+    }
+    if (newProps.getAllTags != null) {
+      allTags = newProps.getAllTags();
       return this.setState(extend({}, allTags, {
-        activeTags: this.props.activeTags || []
+        activeTags: newProps.activeTags || []
       }));
     }
   },
   componentDidMount: function() {
-    var mutationObserver, target;
-    this.updateTagsList();
-    target = this.refs.tagsButton.getDOMNode();
-    mutationObserver = new MutationObserver((function(_this) {
-      return function(mutations) {
-        if (target.style.visibility === 'hidden') {
-          if (target.parentNode.parentNode.querySelector(':not(.taist) .expanded')) {
-            target.style.visibility = 'visible';
-            return target.className += ' showing';
-          }
-        }
-      };
-    })(this));
-    return mutationObserver.observe(target, {
-      attributes: true
-    });
+    console.log('dm', this.props);
+    return this.updateTagsList();
   },
   componentWillReceiveProps: function(nextProps) {
-    return this.updateTagsList();
+    console.log(nextProps);
+    return this.updateTagsList(nextProps);
   },
   preventDefault: function(event) {
     event.preventDefault();
@@ -910,7 +900,9 @@ TagsButton = React.createFactory(React.createClass({
   },
   onClickByTag: function(tagId, isActiveNow) {
     var activeTags, method;
-    activeTags = this.state.activeTags;
+    activeTags = this.state.activeTags.map(function(t) {
+      return t;
+    });
     if (isActiveNow) {
       method = 'onDeleteTag';
       activeTags = activeTags.filter(function(id) {
@@ -938,6 +930,7 @@ TagsButton = React.createFactory(React.createClass({
     });
   },
   render: function() {
+    var ref1;
     return span({
       ref: 'tagsButton',
       style: Styles.get('dummy', {
@@ -949,7 +942,14 @@ TagsButton = React.createFactory(React.createClass({
       'data-behavior': this.props.dataBehavior
     }, a({
       onClick: this.onPopupOpen
-    }, this.props.content), this.state.isPopupVisible ? BasecampPopup({
+    }, !(((ref1 = this.state.activeTags) != null ? ref1.length : void 0) > 0) ? span({
+      style: {
+        cursor: 'pointer'
+      }
+    }, 'Tags') : tagsListComponent({
+      tagsList: this.state.activeTags,
+      tagsIndex: this.state.tagsIndex
+    })), this.state.isPopupVisible ? BasecampPopup({
       header: 'Assign tags to this to-do',
       content: TagsList({
         tagsList: this.state.tagsList,

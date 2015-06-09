@@ -11,6 +11,8 @@ TagEditor = require './tagEditor'
 attrName = require('react/lib/DOMProperty').ID_ATTRIBUTE_NAME
 dataAttrName = attrName.replace(/^data-/, '').replace /-./g, (a) -> a.slice(1).toUpperCase()
 
+tagsListComponent = require './tagsList'
+
 TagsButton = React.createFactory React.createClass
   getInitialState: ->
     tagsList: []
@@ -19,26 +21,28 @@ TagsButton = React.createFactory React.createClass
     activeTags: null
     editedTag: null
 
-  updateTagsList: () ->
-    if @props.getAllTags?
-      allTags = @props.getAllTags()
-      @setState extend {}, allTags, activeTags: (@props.activeTags or [])
+  updateTagsList: (newProps = @props) ->
+    if newProps.getAllTags?
+      allTags = newProps.getAllTags()
+      @setState extend {}, allTags, activeTags: (newProps.activeTags or [])
 
   componentDidMount: ->
+    console.log 'dm', @props
     @updateTagsList()
 
-    target = @refs.tagsButton.getDOMNode()
-
-    mutationObserver = new MutationObserver (mutations) =>
-      if target.style.visibility is 'hidden'
-        if target.parentNode.parentNode.querySelector ':not(.taist) .expanded'
-          target.style.visibility = 'visible'
-          target.className += ' showing'
-
-    mutationObserver.observe target, { attributes: true }
+    # target = @refs.tagsButton.getDOMNode()
+    #
+    # mutationObserver = new MutationObserver (mutations) =>
+    #   if target.style.visibility is 'hidden'
+    #     if target.parentNode.parentNode.querySelector ':not(.taist) .expanded'
+    #       target.style.visibility = 'visible'
+    #       target.className += ' showing'
+    #
+    # mutationObserver.observe target, { attributes: true }
 
   componentWillReceiveProps: (nextProps) ->
-    @updateTagsList()
+    console.log nextProps
+    @updateTagsList(nextProps)
 
   preventDefault: (event) ->
     event.preventDefault()
@@ -81,7 +85,7 @@ TagsButton = React.createFactory React.createClass
           @setState activeTags: activeTags
 
   onClickByTag: (tagId, isActiveNow) ->
-    activeTags = @state.activeTags
+    activeTags = @state.activeTags.map (t) -> t
 
     if isActiveNow
       method = 'onDeleteTag'
@@ -108,14 +112,14 @@ TagsButton = React.createFactory React.createClass
       }, @props.styles
       className: @props.classes + ' has_balloon exclusively_expanded'
       'data-behavior': @props.dataBehavior
-      # 'data-hovercontent-strategy': 'visibility'
     },
       a {
-        # href: '#'
-        # 'data-behavior': 'expand_on_click'
         onClick: @onPopupOpen
       },
-        @props.content
+        unless @state.activeTags?.length > 0
+          span { style: cursor: 'pointer' }, 'Tags'
+        else
+          tagsListComponent { tagsList: @state.activeTags, tagsIndex: @state.tagsIndex }
 
       if @state.isPopupVisible
         BasecampPopup {

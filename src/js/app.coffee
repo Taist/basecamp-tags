@@ -83,7 +83,7 @@ app =
         tags = tags.filter (tag) -> tag isnt tagId
         app.helpers.setTags todoId, tags
         .then ->
-          tags
+          app.helpers.buildTagsLinks todoId, tags
       .catch (error) ->
         console.log error
 
