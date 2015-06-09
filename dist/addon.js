@@ -258,7 +258,7 @@ module.exports = function(section) {
 };
 
 },{"../app":1,"../react/basecamp/tagsControl":15,"react":174}],4:[function(require,module,exports){
-var React, app, isLog, span, tagsButtonComponent, tagsListComponent, updateTodo;
+var React, app, span, tagsButtonComponent, tagsListComponent, updateTodo;
 
 app = require('../app');
 
@@ -270,14 +270,9 @@ tagsButtonComponent = require('../react/basecamp/tagsButton');
 
 span = React.DOM.span;
 
-isLog = false;
-
 updateTodo = function(todoId) {
   return app.helpers.getTags(todoId).then(function(tagsList) {
     var buttonData, tagsIndex;
-    if (isLog) {
-      console.log(tagsList);
-    }
     if (!app.todoContainers[todoId]) {
       return false;
     }
@@ -290,8 +285,6 @@ updateTodo = function(todoId) {
       getAllTags: app.helpers.getAllTags,
       activeTags: tagsList,
       onPopupClose: function() {
-        console.log(todoId);
-        isLog = true;
         return updateTodo(todoId);
       }
     };
@@ -826,11 +819,9 @@ TagsButton = React.createFactory(React.createClass({
     }
   },
   componentDidMount: function() {
-    console.log('dm', this.props);
     return this.updateTagsList();
   },
   componentWillReceiveProps: function(nextProps) {
-    console.log(nextProps);
     return this.updateTagsList(nextProps);
   },
   preventDefault: function(event) {
@@ -930,7 +921,7 @@ TagsButton = React.createFactory(React.createClass({
     });
   },
   render: function() {
-    var ref1;
+    var ref1, ref2;
     return span({
       ref: 'tagsButton',
       style: Styles.get('dummy', {
@@ -938,11 +929,11 @@ TagsButton = React.createFactory(React.createClass({
         marginLeft: 0,
         position: 'relative'
       }, this.props.styles),
-      className: this.props.classes + ' has_balloon exclusively_expanded',
+      className: 'has_balloon exclusively_expanded' + (!(((ref1 = this.state.activeTags) != null ? ref1.length : void 0) > 0) ? ' pill blank' : ''),
       'data-behavior': this.props.dataBehavior
     }, a({
       onClick: this.onPopupOpen
-    }, !(((ref1 = this.state.activeTags) != null ? ref1.length : void 0) > 0) ? span({
+    }, !(((ref2 = this.state.activeTags) != null ? ref2.length : void 0) > 0) ? span({
       style: {
         cursor: 'pointer'
       }

@@ -6,14 +6,9 @@ tagsButtonComponent = require '../react/basecamp/tagsButton'
 
 { span } = React.DOM
 
-isLog = false
-
 updateTodo = (todoId) ->
   app.helpers.getTags todoId
   .then (tagsList) ->
-    if isLog
-      console.log tagsList
-
     unless app.todoContainers[todoId]
       return false
 
@@ -30,8 +25,6 @@ updateTodo = (todoId) ->
       activeTags: tagsList
 
       onPopupClose: ->
-        console.log todoId
-        isLog = true
         updateTodo todoId
     }
 

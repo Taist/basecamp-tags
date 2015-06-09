@@ -27,7 +27,6 @@ TagsButton = React.createFactory React.createClass
       @setState extend {}, allTags, activeTags: (newProps.activeTags or [])
 
   componentDidMount: ->
-    console.log 'dm', @props
     @updateTagsList()
 
     # target = @refs.tagsButton.getDOMNode()
@@ -41,7 +40,6 @@ TagsButton = React.createFactory React.createClass
     # mutationObserver.observe target, { attributes: true }
 
   componentWillReceiveProps: (nextProps) ->
-    console.log nextProps
     @updateTagsList(nextProps)
 
   preventDefault: (event) ->
@@ -110,7 +108,8 @@ TagsButton = React.createFactory React.createClass
         marginLeft: 0
         position: 'relative'
       }, @props.styles
-      className: @props.classes + ' has_balloon exclusively_expanded'
+      className: 'has_balloon exclusively_expanded' +
+        unless @state.activeTags?.length > 0 then ' pill blank' else ''
       'data-behavior': @props.dataBehavior
     },
       a {
