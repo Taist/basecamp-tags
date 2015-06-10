@@ -137,8 +137,7 @@ app = {
           if (tags.indexOf(tagId) < 0) {
             todoPos = appData.tagsLinks[tagId].indexOf(todoId);
             if (todoPos > -1) {
-              appData.tagsLinks[tagId].splice(todoPos, 1);
-              return console.log('on remove', appData.tagsLinks[tagId]);
+              return appData.tagsLinks[tagId].splice(todoPos, 1);
             }
           }
         };

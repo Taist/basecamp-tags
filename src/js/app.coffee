@@ -131,7 +131,6 @@ app =
               todoPos = appData.tagsLinks[tagId].indexOf(todoId)
               if todoPos > -1
                 appData.tagsLinks[tagId].splice todoPos, 1
-                console.log 'on remove', appData.tagsLinks[tagId]
 
       tags = [] unless tags
       tags.forEach (tagId) ->
