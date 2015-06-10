@@ -85,7 +85,7 @@ app = {
           return tag !== tagId;
         });
         return app.helpers.setTags(todoId, tags).then(function() {
-          return app.helpers.buildTagsLinks(todoId, tags);
+          return app.helpers.buildTagsLinks(todoId, tags, true);
         });
       })["catch"](function(error) {
         return console.log(error);
@@ -126,7 +126,26 @@ app = {
         }
       });
     },
-    buildTagsLinks: function(todoId, tags) {
+    buildTagsLinks: function(todoId, tags, isTagDeleted) {
+      var fn, tagId;
+      if (isTagDeleted == null) {
+        isTagDeleted = false;
+      }
+      if (isTagDeleted) {
+        fn = function(tagId) {
+          var todoPos;
+          if (tags.indexOf(tagId) < 0) {
+            todoPos = appData.tagsLinks[tagId].indexOf(todoId);
+            if (todoPos > -1) {
+              appData.tagsLinks[tagId].splice(todoPos, 1);
+              return console.log('on remove', appData.tagsLinks[tagId]);
+            }
+          }
+        };
+        for (tagId in appData.tagsLinks) {
+          fn(tagId);
+        }
+      }
       if (!tags) {
         tags = [];
       }

@@ -64,26 +64,34 @@ app =
 
     onAssignTag: (todoId, tagId) ->
       console.log 'onAssignTag', todoId, tagId
+
       app.helpers.loadTags todoId
       .then (tags) ->
         if tags.indexOf(tagId) < 0
           tags.push tagId
+
           app.helpers.setTags todoId, tags
           .then ->
             app.helpers.buildTagsLinks todoId, tags
+
         else
           tags
+
       .catch (error) ->
         console.log error
 
     onDeleteTag: (todoId, tagId) ->
       console.log 'onDeleteTag', todoId, tagId
+
       app.helpers.loadTags todoId
       .then (tags) ->
-        tags = tags.filter (tag) -> tag isnt tagId
+        tags = tags.filter (tag) ->
+          tag isnt tagId
+
         app.helpers.setTags todoId, tags
         .then ->
-          app.helpers.buildTagsLinks todoId, tags
+          app.helpers.buildTagsLinks todoId, tags, true
+
       .catch (error) ->
         console.log error
 
@@ -115,12 +123,21 @@ app =
         else
           elem.style.display = ''
 
+    buildTagsLinks: (todoId, tags, isTagDeleted = false) ->
+      if isTagDeleted
+        for tagId of appData.tagsLinks
+          do (tagId) ->
+            if tags.indexOf(tagId) < 0
+              todoPos = appData.tagsLinks[tagId].indexOf(todoId)
+              if todoPos > -1
+                appData.tagsLinks[tagId].splice todoPos, 1
+                console.log 'on remove', appData.tagsLinks[tagId]
 
-    buildTagsLinks: (todoId, tags) ->
       tags = [] unless tags
       tags.forEach (tagId) ->
         unless appData.tagsLinks[tagId]
           appData.tagsLinks[tagId] = []
+
         if appData.tagsLinks[tagId].indexOf(todoId) < 0
           appData.tagsLinks[tagId].push todoId
       tags
