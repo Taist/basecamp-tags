@@ -65,6 +65,11 @@ app = {
     },
     onAssignTag: function(todoId, tagId) {
       console.log('onAssignTag', todoId, tagId);
+      if (appData.todosIndex[todoId]) {
+        appData.todosIndex[todoId].push(tagId);
+      } else {
+        appData.todosIndex[todoId] = [tagId];
+      }
       return app.helpers.loadTags(todoId).then(function(tags) {
         if (tags.indexOf(tagId) < 0) {
           tags.push(tagId);
@@ -80,6 +85,9 @@ app = {
     },
     onDeleteTag: function(todoId, tagId) {
       console.log('onDeleteTag', todoId, tagId);
+      appData.todosIndex[todoId] = appData.todosIndex[todoId].filter(function(tag) {
+        return tag !== tagId;
+      });
       return app.helpers.loadTags(todoId).then(function(tags) {
         tags = tags.filter(function(tag) {
           return tag !== tagId;
@@ -820,6 +828,7 @@ TagsButton = React.createFactory(React.createClass({
       tagsList: [],
       tagsIndex: {},
       isPopupVisible: false,
+      isHovered: true,
       activeTags: null,
       editedTag: null
     };
@@ -837,7 +846,30 @@ TagsButton = React.createFactory(React.createClass({
     }
   },
   componentDidMount: function() {
-    return this.updateTagsList();
+    var mutationObserver, target;
+    this.updateTagsList();
+    target = this.refs.tagsButton.getDOMNode().parentNode.parentNode.parentNode.parentNode.querySelector(".nubbin");
+    if (target) {
+      this.setState({
+        isHovered: false
+      });
+      mutationObserver = new MutationObserver((function(_this) {
+        return function(mutations) {
+          if (target.style.display === 'none') {
+            return _this.setState({
+              isHovered: false
+            });
+          } else {
+            return _this.setState({
+              isHovered: true
+            });
+          }
+        };
+      })(this));
+      return mutationObserver.observe(target, {
+        attributes: true
+      });
+    }
   },
   componentWillReceiveProps: function(nextProps) {
     return this.updateTagsList(nextProps);
@@ -939,19 +971,20 @@ TagsButton = React.createFactory(React.createClass({
     });
   },
   render: function() {
-    var ref1, ref2;
+    var ref1, ref2, ref3;
     return span({
       ref: 'tagsButton',
       style: Styles.get('dummy', {
-        visibility: 'visible',
         marginLeft: 0,
         position: 'relative'
-      }, this.props.styles),
-      className: 'has_balloon exclusively_expanded' + (!(((ref1 = this.state.activeTags) != null ? ref1.length : void 0) > 0) ? ' pill blank' : ''),
+      }, this.props.styles, {
+        display: ((ref1 = this.state.activeTags) != null ? ref1.length : void 0) > 0 || this.state.isHovered || this.state.isPopupVisible ? 'inline-block' : 'none'
+      }),
+      className: 'has_balloon exclusively_expanded' + (!(((ref2 = this.state.activeTags) != null ? ref2.length : void 0) > 0) ? ' pill blank' : ''),
       'data-behavior': this.props.dataBehavior
     }, a({
       onClick: this.onPopupOpen
-    }, !(((ref2 = this.state.activeTags) != null ? ref2.length : void 0) > 0) ? span({
+    }, !(((ref3 = this.state.activeTags) != null ? ref3.length : void 0) > 0) ? span({
       style: {
         cursor: 'pointer'
       }

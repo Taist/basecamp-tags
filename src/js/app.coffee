@@ -65,6 +65,12 @@ app =
     onAssignTag: (todoId, tagId) ->
       console.log 'onAssignTag', todoId, tagId
 
+      #optimistic insert
+      if appData.todosIndex[todoId]
+        appData.todosIndex[todoId].push tagId
+      else
+        appData.todosIndex[todoId] = [tagId]
+
       app.helpers.loadTags todoId
       .then (tags) ->
         if tags.indexOf(tagId) < 0
@@ -83,10 +89,12 @@ app =
     onDeleteTag: (todoId, tagId) ->
       console.log 'onDeleteTag', todoId, tagId
 
+      #optimistic delete
+      appData.todosIndex[todoId] = appData.todosIndex[todoId].filter (tag) -> tag isnt tagId
+
       app.helpers.loadTags todoId
       .then (tags) ->
-        tags = tags.filter (tag) ->
-          tag isnt tagId
+        tags = tags.filter (tag) -> tag isnt tagId
 
         app.helpers.setTags todoId, tags
         .then ->

@@ -18,6 +18,7 @@ TagsButton = React.createFactory React.createClass
     tagsList: []
     tagsIndex: {}
     isPopupVisible: false
+    isHovered: true
     activeTags: null
     editedTag: null
 
@@ -29,15 +30,25 @@ TagsButton = React.createFactory React.createClass
   componentDidMount: ->
     @updateTagsList()
 
-    # target = @refs.tagsButton.getDOMNode()
-    #
-    # mutationObserver = new MutationObserver (mutations) =>
+    target = @refs.tagsButton.getDOMNode()
+    .parentNode.parentNode.parentNode.parentNode
+    .querySelector ".nubbin"
+
+    if target
+      @setState isHovered: false
+
+      mutationObserver = new MutationObserver (mutations) =>
+        if target.style.display is 'none'
+          @setState isHovered: false
+        else
+          @setState isHovered: true
+
     #   if target.style.visibility is 'hidden'
     #     if target.parentNode.parentNode.querySelector ':not(.taist) .expanded'
     #       target.style.visibility = 'visible'
     #       target.className += ' showing'
     #
-    # mutationObserver.observe target, { attributes: true }
+      mutationObserver.observe target, { attributes: true }
 
   componentWillReceiveProps: (nextProps) ->
     @updateTagsList(nextProps)
@@ -103,11 +114,18 @@ TagsButton = React.createFactory React.createClass
   render: ->
     span {
       ref: 'tagsButton'
+
       style: Styles.get 'dummy', {
-        visibility: 'visible'
         marginLeft: 0
         position: 'relative'
-      }, @props.styles
+      }, @props.styles, {
+        display:
+          if (@state.activeTags?.length > 0 or @state.isHovered or @state.isPopupVisible)
+            'inline-block'
+          else
+            'none'
+      }
+
       className: 'has_balloon exclusively_expanded' +
         unless @state.activeTags?.length > 0 then ' pill blank' else ''
       'data-behavior': @props.dataBehavior
