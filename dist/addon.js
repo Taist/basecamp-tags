@@ -687,9 +687,11 @@ TagEditor = React.createFactory(React.createClass({
     };
   },
   onActivateEditor: function() {
-    return this.setState({
+    var base;
+    this.setState({
       isEditorActive: true
     });
+    return typeof (base = this.props).onSaveTag === "function" ? base.onSaveTag({}) : void 0;
   },
   onKeyDown: function(event) {
     var action;
@@ -725,10 +727,12 @@ TagEditor = React.createFactory(React.createClass({
     });
   },
   onCancel: function() {
-    return this.setState({
+    var base;
+    this.setState({
       isEditorActive: false,
       selectedColor: null
     });
+    return typeof (base = this.props).onSaveTag === "function" ? base.onSaveTag(null) : void 0;
   },
   onSelectColor: function(color) {
     return this.setState({
@@ -743,7 +747,9 @@ TagEditor = React.createFactory(React.createClass({
       }, (function(_this) {
         return function() {
           var ref1;
-          return (ref1 = _this.refs.tagName) != null ? ref1.getDOMNode().value = nextProps.editedTag.name : void 0;
+          if (nextProps.editedTag.name != null) {
+            return (ref1 = _this.refs.tagName) != null ? ref1.getDOMNode().value = nextProps.editedTag.name : void 0;
+          }
         };
       })(this));
     } else {
@@ -914,6 +920,18 @@ TagsButton = React.createFactory(React.createClass({
   },
   onSaveTag: function(tag) {
     var shouldBeAssigned;
+    if (tag === null) {
+      this.setState({
+        editedTag: null
+      });
+      return;
+    }
+    if (tag.name == null) {
+      this.setState({
+        editedTag: {}
+      });
+      return;
+    }
     shouldBeAssigned = tag.id == null;
     return this.props.onSaveTag(tag).then((function(_this) {
       return function() {

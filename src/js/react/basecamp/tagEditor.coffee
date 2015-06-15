@@ -13,6 +13,7 @@ TagEditor = React.createFactory React.createClass
 
   onActivateEditor: ->
     @setState isEditorActive: true
+    @props.onSaveTag? {}
 
   onKeyDown: (event) ->
     action = null
@@ -35,6 +36,7 @@ TagEditor = React.createFactory React.createClass
 
   onCancel: ->
     @setState isEditorActive: false, selectedColor: null
+    @props.onSaveTag? null
 
   onSelectColor: (color) ->
     @setState selectedColor: color
@@ -42,7 +44,8 @@ TagEditor = React.createFactory React.createClass
   componentWillReceiveProps: (nextProps) ->
     if nextProps.editedTag
       @setState { editedTag: nextProps.editedTag, isEditorActive: true }, =>
-        @refs.tagName?.getDOMNode().value = nextProps.editedTag.name
+        if nextProps.editedTag.name?
+          @refs.tagName?.getDOMNode().value = nextProps.editedTag.name
     else
       @setState { editedTag: null, isEditorActive: false }, =>
         @refs.tagName?.getDOMNode().value = ''

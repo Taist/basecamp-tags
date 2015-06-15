@@ -79,6 +79,14 @@ TagsButton = React.createFactory React.createClass
       @props.onPopupClose()
 
   onSaveTag: (tag) ->
+    if tag is null
+      @setState editedTag: null
+      return
+
+    unless tag.name?
+      @setState editedTag: {}
+      return
+
     shouldBeAssigned = not tag.id?
     @props.onSaveTag tag
     .then =>
