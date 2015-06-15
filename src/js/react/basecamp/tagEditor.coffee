@@ -10,6 +10,7 @@ TagEditor = React.createFactory React.createClass
     editedTag: null
     selectedColor: null
     isEditorActive: false
+    wasEdited: false
 
   onActivateEditor: ->
     @setState isEditorActive: true
@@ -17,6 +18,8 @@ TagEditor = React.createFactory React.createClass
 
   onKeyDown: (event) ->
     action = null
+
+    @setState wasEdited: true
 
     switch event.keyCode
       when 13 then action = @onSave
@@ -32,10 +35,10 @@ TagEditor = React.createFactory React.createClass
     color = @state.selectedColor ? @state.editedTag?.color
     name = @refs.tagName.getDOMNode().value
     @props.onSaveTag? { id, name, color }
-    @setState isEditorActive: false, selectedColor: null
+    @setState isEditorActive: false, selectedColor: null, wasEdited: false
 
   onCancel: ->
-    @setState isEditorActive: false, selectedColor: null
+    @setState isEditorActive: false, selectedColor: null, wasEdited: false
     @props.onSaveTag? null
 
   onSelectColor: (color) ->
@@ -44,10 +47,10 @@ TagEditor = React.createFactory React.createClass
   componentWillReceiveProps: (nextProps) ->
     if nextProps.editedTag
       @setState { editedTag: nextProps.editedTag, isEditorActive: true }, =>
-        if nextProps.editedTag.name?
+        if nextProps.editedTag.name? and not @state.wasEdited
           @refs.tagName?.getDOMNode().value = nextProps.editedTag.name
     else
-      @setState { editedTag: null, isEditorActive: false }, =>
+      @setState { editedTag: null, isEditorActive: false, wasEdited: false }, =>
         @refs.tagName?.getDOMNode().value = ''
 
   render: ->
