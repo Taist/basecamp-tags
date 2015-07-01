@@ -5,6 +5,8 @@ require('react/lib/DOMProperty').ID_ATTRIBUTE_NAME = 'data-vrbst-reactid'
 extend = require 'react/lib/Object.assign'
 generateGUID = require './helpers/generateGUID'
 
+proxy = require './helpers/xmlHttpProxy'
+
 appData = {}
 
 appData.tagsIndex = {}
@@ -23,7 +25,54 @@ app =
 
   todoContainers: {}
 
+  materialize: {}
+
+  initProxy: ->
+    proxy.onRequestFinish (request) ->
+      url = request.responseURL
+      if url.match /\/materialize$/
+        try
+          todoTags = JSON.parse request.response
+          src = todoTags.source_resource_id
+          dst = todoTags.destination_resource_id
+          app.materialize = { src, dst }
+
+      if url.match /\/completed$/
+        account = location.pathname.split('/')[1]
+        { src, dst } = app.materialize
+
+        if request.response.indexOf 'When a project is materizlied from a template'
+          if request.response.indexOf "/#{account}/projects/#{dst}"
+
+            app.materialize = {}
+
+            Q.all([
+              $.get "/#{account}/projects/#{src}?from_workspace=42"
+              $.get "/#{account}/projects/#{dst}?from_workspace=42"
+            ]).spread (src, dst) ->
+
+              sourceTags = src.match(/\/todos\/\d+\/edit/g).map (t) ->
+                appData.todosIndex[ "todo_#{t.match(/\d+/)[0]}" ]
+
+              dstTodos =  dst.match(/\/todos\/\d+\/edit/g).map (t) ->
+                "todo_#{t.match(/\d+/)[0]}"
+
+              if sourceTags.length is dstTodos.length
+                sourceTags.forEach (tags, index) ->
+                  if tags
+                    todoId = dstTodos[index]
+                    console.log todoId, tags
+                    appData.todosIndex[todoId] = tags
+
+                app.exapi.updateCompanyData 'todosTags', appData.todosIndex
+                .then ->
+                  dstTodos.forEach (todoId) ->
+                    app.helpers.buildTagsLinks todoId, appData.todosIndex[todoId]
+                    app.basecamp.updateTodo todoId
+
   init: (api) ->
+    app.initProxy()
+
     app.api = api
 
     app.exapi.setUserData = Q.nbind api.userData.set, api.userData
