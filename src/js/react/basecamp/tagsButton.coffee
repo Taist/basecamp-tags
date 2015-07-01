@@ -30,25 +30,21 @@ TagsButton = React.createFactory React.createClass
   componentDidMount: ->
     @updateTagsList()
 
-    target = @refs.tagsButton.getDOMNode()
+    todoNode = @refs.tagsButton.getDOMNode()
     .parentNode.parentNode.parentNode.parentNode
-    .querySelector ".nubbin"
 
-    if target
+    nubbin = todoNode.querySelector '.nubbin'
+
+    if nubbin
       @setState isHovered: false
 
       mutationObserver = new MutationObserver (mutations) =>
-        if target.style.display is 'none'
+        if nubbin.style.display is 'none' and not todoNode.className.match(/balloon_expanded/)?
           @setState isHovered: false
         else
           @setState isHovered: true
 
-    #   if target.style.visibility is 'hidden'
-    #     if target.parentNode.parentNode.querySelector ':not(.taist) .expanded'
-    #       target.style.visibility = 'visible'
-    #       target.className += ' showing'
-    #
-      mutationObserver.observe target, { attributes: true }
+      mutationObserver.observe nubbin, { attributes: true }
 
   componentWillReceiveProps: (nextProps) ->
     @updateTagsList(nextProps)

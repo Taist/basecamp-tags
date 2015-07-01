@@ -10,7 +10,7 @@ Tag = React.createFactory React.createClass
   onClick: ->
     @props.onClick?(@props.tag.id, not @props.isInactive)
 
-  onEdit: ->
+  onEdit: (event) ->
     event.preventDefault()
     event.stopPropagation()
     @props.onEdit @props.tag
