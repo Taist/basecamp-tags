@@ -58,10 +58,10 @@ app =
                 "todo_#{t.match(/\d+/)[0]}"
 
               if sourceTags.length is dstTodos.length
+                # check number of created todos. it should match number of todos in the template
                 sourceTags.forEach (tags, index) ->
                   if tags
                     todoId = dstTodos[index]
-                    console.log todoId, tags
                     appData.todosIndex[todoId] = tags
 
                 app.exapi.updateCompanyData 'todosTags', appData.todosIndex
@@ -69,6 +69,8 @@ app =
                   dstTodos.forEach (todoId) ->
                     app.helpers.buildTagsLinks todoId, appData.todosIndex[todoId]
                     app.basecamp.updateTodo todoId
+              else
+                app.api.log 'Number of todos in the template and project doesn\'t match'
 
   init: (api) ->
     app.initProxy()
