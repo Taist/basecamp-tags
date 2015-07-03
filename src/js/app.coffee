@@ -65,10 +65,12 @@ app =
                     appData.todosIndex[todoId] = tags
 
                 app.exapi.updateCompanyData 'todosTags', appData.todosIndex
-                .then ->
+                .then (updatedData) ->
+                  appData.todosIndex = updatedData
                   dstTodos.forEach (todoId) ->
                     app.helpers.buildTagsLinks todoId, appData.todosIndex[todoId]
                     app.basecamp.updateTodo todoId
+
               else
                 app.api.log 'Number of todos in the template and project doesn\'t match'
 

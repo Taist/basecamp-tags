@@ -27,6 +27,8 @@ TagsButton = React.createFactory React.createClass
       allTags = newProps.getAllTags()
       @setState extend {}, allTags, activeTags: (newProps.activeTags or [])
 
+  mutationObserver: null
+
   componentDidMount: ->
     @updateTagsList()
 
@@ -38,14 +40,17 @@ TagsButton = React.createFactory React.createClass
     if nubbin
       @setState isHovered: false
 
-      mutationObserver = new MutationObserver (mutations) =>
+      @mutationObserver = new MutationObserver (mutations) =>
         if nubbin.style.display is 'none' and not todoNode.className.match(/balloon_expanded/)?
           @setState isHovered: false
         else
           @setState isHovered: true
 
-      mutationObserver.observe nubbin, { attributes: true }
+      @mutationObserver.observe nubbin, { attributes: true }
 
+  componentWillUnmount: () ->
+    @mutationObserver.disconnect()
+    
   componentWillReceiveProps: (nextProps) ->
     @updateTagsList(nextProps)
 
